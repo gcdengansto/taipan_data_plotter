@@ -1,0 +1,1225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Data File Plotter with Summary</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.16.1/plotly.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .options-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 5px;
+            justify-content: center;
+        }
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .checkbox-container input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+        }
+        label {
+            font-weight: bold;
+        }
+        button {
+            padding: 12px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            width: 200px;
+            align-self: center;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .tab-container {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+            background-color: #f1f1f1;
+        }
+        .tab-button {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: none;
+            border-right: 1px solid #ddd;
+        }
+        .tab-button:last-child {
+            border-right: none;
+        }
+        .tab-button.active {
+            background-color: #fff;
+            border-bottom: 2px solid #4CAF50;
+            font-weight: bold;
+        }
+        .tab-button:hover {
+            background-color: #e0e0e0;
+        }
+        .tab-content {
+            display: none;
+            padding: 20px;
+            background-color: white;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .plot-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .plot-container {
+            height: 400px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: white;
+            cursor: pointer;
+        }
+        .text-tab table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .text-tab th, .text-tab td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: right;
+        }
+        .text-tab th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+        .text-tab .file-section {
+            margin-bottom: 30px;
+            position: relative;
+        }
+        .dropdown-btn {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            padding: 8px 12px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .dropdown-btn:hover {
+            background-color: #45a049;
+        }
+        .file-info {
+            margin-top: 20px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .file-info-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .file-item {
+            background-color: #e3f2fd;
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 14px;
+        }
+        .error-message {
+            color: #d32f2f;
+            font-weight: bold;
+            padding: 10px;
+            border: 1px solid #d32f2f;
+            border-radius: 4px;
+            background-color: #ffebee;
+            margin-bottom: 10px;
+        }
+        .info-message {
+            color: #1976d2;
+            padding: 10px;
+            border: 1px solid #1976d2;
+            border-radius: 4px;
+            background-color: #e3f2fd;
+            margin-bottom: 10px;
+        }
+        .summary-section {
+            margin-top: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            background-color: white;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .summary-table th {
+            background-color: #f1f1f1;
+            font-weight: bold;
+        }
+        .summary-table tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .summary-table tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        /* Popup window styles */
+        .popup-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .popup-window {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .popup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+        
+        .popup-close {
+            background: #f44336;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+        
+        .popup-close:hover {
+            background: #d32f2f;
+        }
+        
+        .fitting-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        
+        .fitting-controls label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+        
+        .fitting-controls select, .fitting-controls button {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        .fit-button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        
+        .fit-button:hover {
+            background-color: #1976D2;
+        }
+        
+        .popup-plot {
+            height: 400px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        
+        .fit-results {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        .fit-results h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .fit-parameter {
+            margin: 5px 0;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .fit-parameter .param-name {
+            font-weight: bold;
+        }
+        
+        .fit-parameter .param-value {
+            color: #2196F3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Data File Plotter with Scan Summary</h1>
+        
+        <div class="input-section">
+            <div id="message-area"></div>
+            <div class="options-row">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="enable-plots" checked>
+                    <label for="enable-plots">Enable Plotting</label>
+                </div>
+            </div>
+            <button onclick="processData()">Select and Process Data Files</button>
+        </div>
+        
+        <div id="file-info-section" style="display: none;" class="file-info">
+            <div class="file-info-title">Selected Files:</div>
+            <div id="file-list" class="file-list"></div>
+        </div>
+        
+        <div id="summary-section" class="summary-section" style="display: none;">
+            <h2>Scan Summary</h2>
+            <table id="summary-table" class="summary-table">
+                <thead>
+                    <tr>
+                        <th>File Number</th>
+                        <th>Scan Description</th>
+                    </tr>
+                </thead>
+                <tbody id="summary-table-body">
+                </tbody>
+            </table>
+        </div>
+        
+        <div id="tabs-container" class="tab-container" style="display: none;">
+            <div class="tab-buttons">
+                <button class="tab-button active" onclick="switchTab('plot')">Data Plots</button>
+                <button class="tab-button" onclick="switchTab('text')">Text Data</button>
+            </div>
+            <div id="plot-tab" class="tab-content active">
+                <div id="plot-grid" class="plot-grid"></div>
+            </div>
+            <div id="text-tab" class="tab-content text-tab"></div>
+        </div>
+        
+        <!-- Popup window for Gaussian fitting -->
+        <div id="fitting-popup" class="popup-overlay" style="display: none;">
+            <div class="popup-window">
+                <div class="popup-header">
+                    <h2 id="popup-title">Gaussian Fitting</h2>
+                    <button class="popup-close" onclick="closeFittingPopup()">Close</button>
+                </div>
+                
+                <div class="fitting-controls">
+                    <label for="gaussian-count">Number of Gaussians:</label>
+                    <select id="gaussian-count">
+                        <option value="1">1 Gaussian</option>
+                        <option value="2">2 Gaussians</option>
+                    </select>
+                    <button class="fit-button" onclick="performGaussianFit()">Fit Data</button>
+                </div>
+                
+                <div id="popup-plot" class="popup-plot"></div>
+                
+                <div id="fit-results" class="fit-results" style="display: none;">
+                    <h3>Fitting Results:</h3>
+                    <div id="fit-parameters"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables for fitting
+        let currentFitData = null;
+        let currentPlotTitle = '';
+        let currentXLabel = '';
+        let currentYLabel = '';
+        
+        // Function to show error messages
+        function showError(message) {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="error-message">${message}</div>`;
+        }
+        
+        // Function to show info messages
+        function showInfo(message) {
+            const messageArea = document.getElementById('message-area');
+            messageArea.innerHTML = `<div class="info-message">${message}</div>`;
+        }
+        
+        // Function to clear messages
+        function clearMessages() {
+            document.getElementById('message-area').innerHTML = '';
+        }
+        
+        // Function to read a text file using FileReader API
+        function readFileContent(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => resolve(event.target.result);
+                reader.onerror = (error) => reject(error);
+                reader.readAsText(file);
+            });
+        }
+        
+        // Function to parse data with headers starting with #
+        function parseDataWithHeaders(content) {
+            const lines = content.trim().split('\n');
+            
+            const headerLines = [];
+            let dataStartIndex = 0;
+            let scanTitle = '';
+            
+            for (let i = 0; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line.startsWith('#')) {
+                    headerLines.push(line);
+                    if (line.includes('# scan_title =')) {
+                        scanTitle = line.split('# scan_title =')[1].trim();
+                    }
+                    dataStartIndex = i + 1;
+                } else {
+                    break;
+                }
+            }
+            
+            if (headerLines.length === 0) {
+                throw new Error("No header lines (starting with #) found in the file");
+            }
+            
+            const lastHeaderLine = headerLines[headerLines.length - 1].trim().substring(1).trim();
+            const columnNames = lastHeaderLine.split(/\s+/).map(name => name.trim());
+            
+            const detectorColumnIndex = columnNames.findIndex(name => name.toLowerCase() === 'detector');
+            if (detectorColumnIndex === -1) {
+                throw new Error("No 'detector' column found in the file headers");
+            }
+            
+            const data = [];
+            for (let i = dataStartIndex; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (line && !line.startsWith('#')) {
+                    const values = line.split(/\s+/).map(v => {
+                        const parsed = parseFloat(v.trim());
+                        return isNaN(parsed) ? v.trim() : parsed;
+                    });
+                    if (values.length >= Math.max(2, detectorColumnIndex + 1)) {
+                        data.push(values);
+                    }
+                }
+            }
+            
+            return { columnNames, data, detectorColumnIndex, scanTitle };
+        }
+        
+        // Function to get column index safely
+        function getColumnIndex(columnNames, columnName) {
+            return columnNames.findIndex(name => name.toLowerCase() === columnName.toLowerCase());
+        }
+        
+        // Function to format a value with appropriate precision
+        function formatValue(value) {
+            if (typeof value === 'number') {
+                return value.toFixed(4);
+            }
+            return value !== undefined ? value : "N/A";
+        }
+        function formatValue2(value) {
+            if (typeof value === 'number') {
+                return value.toFixed(2);
+            }
+            return value !== undefined ? value : "N/A";
+        }
+        function formatValue1(value) {
+            if (typeof value === 'number') {
+                return value.toFixed(1);
+            }
+            return value !== undefined ? value : "N/A";
+        }
+        
+        // Function to get value safely from data
+        function getValue(data, rowIndex, columnIndex) {
+            if (data && data.length > rowIndex && columnIndex !== -1 && columnIndex < data[rowIndex].length) {
+                return data[rowIndex][columnIndex];
+            }
+            return "N/A";
+        }
+        
+        // Function to determine the scanning motor and create a summary
+        function createScanSummary(columnNames, data, fileIndex, fileName) {
+            // Check if any of these special motors are the scanning motor
+            const specialMotors = ["qh", "qk", "ql", "en"];
+            let scanningMotorIndex = -1;
+            let scanningMotorName = "";
+            
+            // First, check the second column (index 1)
+            const secondColumnName = columnNames[1].toLowerCase();
+            
+            if (!specialMotors.includes(secondColumnName)) {
+                // If the second column is not one of the special motors, use it as scanning motor
+                scanningMotorIndex = 1;
+                scanningMotorName = columnNames[1];
+            } else {
+                // If it is one of the special motors, need to check which one is changing
+                const changingMotors = [];
+                
+                // For each special motor, check if it's present and if it's changing
+                for (const motor of specialMotors) {
+                    const motorIndex = columnNames.findIndex(name => name.toLowerCase() === motor);
+                    if (motorIndex !== -1) {
+                        // Calculate average change between steps
+                        let totalChange = 0;
+                        for (let i = 1; i < data.length; i++) {
+                            totalChange += Math.abs(data[i][motorIndex] - data[i-1][motorIndex]);
+                        }
+                        const avgChange = data.length > 1 ? totalChange / (data.length - 1) : 0;
+                        
+                        if (avgChange >= 0.001) {
+                            changingMotors.push({
+                                name: columnNames[motorIndex],
+                                index: motorIndex,
+                                avgChange: avgChange
+                            });
+                        }
+                    }
+                }
+                
+                // Take the first changing motor as the scanning motor
+                if (changingMotors.length > 0) {
+                    scanningMotorIndex = changingMotors[0].index;
+                    scanningMotorName = changingMotors[0].name;
+                } else {
+                    // If none of the special motors are changing enough, fall back to the second column
+                    scanningMotorIndex = 1;
+                    scanningMotorName = columnNames[1];
+                }
+            }
+            
+            // Get first and last values of the scanning motor
+            const firstValue = data.length > 0 ? data[0][scanningMotorIndex] : "N/A";
+            const lastValue = data.length > 0 ? data[data.length - 1][scanningMotorIndex] : "N/A";
+            console.log("checkpoint1")
+            console.log(data.length)
+            
+            // Extract file number from filename if possible
+            const fileNumberMatch = fileName.match(/scan(\d+)\.dat/);
+            const fileNumber = fileNumberMatch ? fileNumberMatch[1] : fileIndex + 1;
+            
+            // Get indices for other important columns
+            let qhIndex = getColumnIndex(columnNames, "qh");
+            if (qhIndex < 0) {
+                 qhIndex = getColumnIndex(columnNames, "h");
+
+            }
+                
+
+            let qkIndex = getColumnIndex(columnNames, "qk");
+            if (qkIndex < 0) {
+                qkIndex = getColumnIndex(columnNames, "k");
+            }
+            let qlIndex = getColumnIndex(columnNames, "ql");
+            if (qlIndex < 0) {
+                qlIndex = getColumnIndex(columnNames, "l");
+            }
+            let enIndex = getColumnIndex(columnNames, "en");
+            if (enIndex < 0) {
+                enIndex = getColumnIndex(columnNames, "e");
+            }
+            
+            // Get temperature sensor indices
+            const t1s1Index = getColumnIndex(columnNames, "T1_Sensor1");
+            const t1s2Index = getColumnIndex(columnNames, "T1_Sensor2");
+            const t1s3Index = getColumnIndex(columnNames, "T1_Sensor3");
+            
+            // Get first row values
+            const qhValue = getValue(data, 0, qhIndex);
+            console.log("checkpoint2")
+            console.log(data.length)
+            const qkValue = getValue(data, 0, qkIndex);
+            const qlValue = getValue(data, 0, qlIndex);
+            const enValue = getValue(data, 0, enIndex);
+            const t1s1Value = getValue(data, 0, t1s1Index);
+            const t1s2Value = getValue(data, 0, t1s2Index);
+            const t1s3Value = getValue(data, 0, t1s3Index);
+            
+            // Create the summary description based on the scanning motor
+            let scanDescription = "";
+            
+            if (scanningMotorName.toLowerCase() === "qh" || 
+                scanningMotorName.toLowerCase() === "qk" || 
+                scanningMotorName.toLowerCase() === "ql") {
+                // For qh, qk, ql scans
+                scanDescription = `scan ${scanningMotorName} from ${formatValue2(firstValue)} to ${formatValue2(lastValue)}` +
+                    ` at Q = [${formatValue2(qhValue)},${formatValue2(qkValue)},${formatValue2(qlValue)}]` +
+                    ` and E = ${formatValue(enValue)}` +
+                    ` at T=${formatValue1(t1s1Value)},${formatValue1(t1s2Value)},${formatValue1(t1s3Value)}`;
+            } else if (scanningMotorName.toLowerCase() === "en") {
+                // For energy scans
+                scanDescription = `scan ${scanningMotorName} from ${formatValue2(firstValue)} to ${formatValue2(lastValue)}` +
+                    ` at Q = [${formatValue2(qhValue)},${formatValue2(qkValue)},${formatValue2(qlValue)}]` +
+                    ` at T=${formatValue1(t1s1Value)},${formatValue1(t1s2Value)},${formatValue1(t1s3Value)}`;
+            } else {
+                // For other scans
+                scanDescription = `scan ${scanningMotorName} from ${formatValue(firstValue)} to ${formatValue(lastValue)}`;
+            }
+            
+            return {
+                fileNumber: fileNumber,
+                scanDescription: scanDescription,
+                scanningMotor: scanningMotorName,
+                scanningMotorIndex: scanningMotorIndex,
+                firstValue: firstValue,
+                lastValue: lastValue
+            };
+        }
+        
+        // Function to update the file info section
+        function updateFileInfo(files) {
+            const fileInfoSection = document.getElementById('file-info-section');
+            const fileList = document.getElementById('file-list');
+            fileList.innerHTML = '';
+            for (const file of files) {
+                const fileItem = document.createElement('div');
+                fileItem.className = 'file-item';
+                fileItem.textContent = file.name;
+                fileList.appendChild(fileItem);
+            }
+            fileInfoSection.style.display = 'block';
+        }
+        
+        // Function to update the summary table
+        function updateSummaryTable(summaries) {
+            if (summaries.length === 0) return;
+            
+            const summarySection = document.getElementById('summary-section');
+            const summaryTableBody = document.getElementById('summary-table-body');
+            summaryTableBody.innerHTML = '';
+            
+            for (const summary of summaries) {
+                const row = document.createElement('tr');
+                
+                const fileNumberCell = document.createElement('td');
+                fileNumberCell.textContent = summary.fileNumber;
+                row.appendChild(fileNumberCell);
+                
+                const descriptionCell = document.createElement('td');
+                descriptionCell.textContent = summary.scanDescription;
+                row.appendChild(descriptionCell);
+                
+                summaryTableBody.appendChild(row);
+            }
+            
+            summarySection.style.display = 'block';
+        }
+        
+        // Function to create plot containers
+        function createPlotContainers(numFiles) {
+            const plotGrid = document.getElementById('plot-grid');
+            plotGrid.innerHTML = '';
+            
+            for (let i = 0; i < numFiles; i++) {
+                const plotContainer = document.createElement('div');
+                plotContainer.className = 'plot-container';
+                plotContainer.id = `plot-${i}`;
+                plotGrid.appendChild(plotContainer);
+            }
+        }
+        
+        // Function to switch tabs
+        function switchTab(type) {
+            const plotTab = document.getElementById('plot-tab');
+            const textTab = document.getElementById('text-tab');
+            const buttons = document.querySelectorAll('.tab-button');
+            
+            if (type === 'plot') {
+                plotTab.classList.add('active');
+                textTab.classList.remove('active');
+                buttons[0].classList.add('active');
+                buttons[1].classList.remove('active');
+            } else {
+                plotTab.classList.remove('active');
+                textTab.classList.add('active');
+                buttons[0].classList.remove('active');
+                buttons[1].classList.add('active');
+            }
+        }
+        
+        // Function to truncate file name
+        function truncateFileName(fileName) {
+            const match = fileName.match(/scan(\d+)\.dat/);
+            return match ? match[1] : fileName;
+        }
+        
+        // Function to generate table HTML
+        function generateTableHTML(columnNames, data, colIndices, limit = 5) {
+            let tableHTML = '<table><tr>';
+            colIndices.forEach(idx => {
+                tableHTML += `<th>${columnNames[idx]}</th>`;
+            });
+            tableHTML += '</tr>';
+            
+            const rowLimit = limit === 'full' ? data.length : Math.min(5, data.length);
+            for (let i = 0; i < rowLimit; i++) {
+                tableHTML += '<tr>';
+                colIndices.forEach(idx => {
+                    tableHTML += `<td>${data[i][idx]}</td>`;
+                });
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</table>';
+            return tableHTML;
+        }
+        
+        // Gaussian fitting functions
+        function gaussian(x, a, mu, sigma) {
+            return a * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+        }
+        function gaussian_bg(x, a, mu, sigma, bg) {
+            return gaussian(x, a, mu, sigma) + bg;
+        }        
+        function doubleGaussian(x, a1, mu1, sigma1, a2, mu2, sigma2) {
+            return gaussian(x, a1, mu1, sigma1) + gaussian(x, a2, mu2, sigma2);
+        }
+        function doubleGaussian_bg(x, a1, mu1, sigma1, a2, mu2, sigma2, bg) {
+            return gaussian(x, a1, mu1, sigma1) + gaussian(x, a2, mu2, sigma2) + bg;
+        }
+
+        // Levenberg-Marquardt algorithm for non-linear fitting
+        function levenbergMarquardt(xData, yData, func, initialParams, maxIterations = 1000, tolerance = 1e-8) {
+            let params = [...initialParams];
+            let lambda = 0.001;
+            let previousError = Infinity;
+            
+            for (let iteration = 0; iteration < maxIterations; iteration++) {
+                const jacobian = [];
+                const residuals = [];
+                
+                // Calculate residuals and Jacobian
+                for (let i = 0; i < xData.length; i++) {
+                    const x = xData[i];
+                    const yObserved = yData[i];
+                    const yPredicted = func(x, ...params);
+                    residuals.push(yObserved - yPredicted);
+                    
+                    // Numerical gradient
+                    const gradient = [];
+                    const h = 1e-8;
+                    for (let j = 0; j < params.length; j++) {
+                        const paramsPlus = [...params];
+                        const paramsMinus = [...params];
+                        paramsPlus[j] += h;
+                        paramsMinus[j] -= h;
+                        
+                        const yPlus = func(x, ...paramsPlus);
+                        const yMinus = func(x, ...paramsMinus);
+                        gradient.push((yPlus - yMinus) / (2 * h));
+                    }
+                    jacobian.push(gradient);
+                }
+                
+                // Calculate current error
+                const currentError = residuals.reduce((sum, r) => sum + r * r, 0);
+                
+                // Check for convergence
+                if (Math.abs(previousError - currentError) < tolerance) {
+                    break;
+                }
+                
+                // Compute JtJ (Jacobian transpose times Jacobian)
+                const JtJ = [];
+                for (let i = 0; i < params.length; i++) {
+                    JtJ[i] = [];
+                    for (let j = 0; j < params.length; j++) {
+                        let sum = 0;
+                        for (let k = 0; k < jacobian.length; k++) {
+                            sum += jacobian[k][i] * jacobian[k][j];
+                        }
+                        JtJ[i][j] = sum;
+                    }
+                }
+                
+                // Add lambda to diagonal (Levenberg-Marquardt modification)
+                for (let i = 0; i < params.length; i++) {
+                    JtJ[i][i] += lambda;
+                }
+                
+                // Compute Jt * residuals
+                const JtR = [];
+                for (let i = 0; i < params.length; i++) {
+                    let sum = 0;
+                    for (let j = 0; j < jacobian.length; j++) {
+                        sum += jacobian[j][i] * residuals[j];
+                    }
+                    JtR.push(sum);
+                }
+                
+                // Solve linear system (simplified approach for small matrices)
+                const delta = solveLinearSystem(JtJ, JtR);
+                
+                // Update parameters
+                const newParams = params.map((p, i) => p + delta[i]);
+                const newError = xData.reduce((sum, x, i) => {
+                    const residual = yData[i] - func(x, ...newParams);
+                    return sum + residual * residual;
+                }, 0);
+                
+                if (newError < currentError) {
+                    params = newParams;
+                    lambda /= 10;
+                    previousError = currentError;
+                } else {
+                    lambda *= 10;
+                }
+            }
+            
+            return params;
+        }
+        
+        // Simple linear system solver for small matrices
+        function solveLinearSystem(A, b) {
+            const n = A.length;
+            const augmented = A.map((row, i) => [...row, b[i]]);
+            
+            // Gaussian elimination
+            for (let i = 0; i < n; i++) {
+                // Find pivot
+                let maxRow = i;
+                for (let k = i + 1; k < n; k++) {
+                    if (Math.abs(augmented[k][i]) > Math.abs(augmented[maxRow][i])) {
+                        maxRow = k;
+                    }
+                }
+                
+                // Swap rows
+                [augmented[i], augmented[maxRow]] = [augmented[maxRow], augmented[i]];
+                
+                // Eliminate column
+                for (let k = i + 1; k < n; k++) {
+                    const factor = augmented[k][i] / augmented[i][i];
+                    for (let j = i; j < n + 1; j++) {
+                        augmented[k][j] -= factor * augmented[i][j];
+                    }
+                }
+            }
+            
+            // Back substitution
+            const x = new Array(n);
+            for (let i = n - 1; i >= 0; i--) {
+                x[i] = augmented[i][n];
+                for (let j = i + 1; j < n; j++) {
+                    x[i] -= augmented[i][j] * x[j];
+                }
+                x[i] /= augmented[i][i];
+            }
+            
+            return x;
+        }
+        
+        // Function to open fitting popup
+        function openFittingPopup(xData, yData, title, xLabel, yLabel) {
+            currentFitData = { x: xData, y: yData };
+            currentPlotTitle = title;
+            currentXLabel = xLabel;
+            currentYLabel = yLabel;
+            
+            document.getElementById('popup-title').textContent = `Gaussian Fitting - ${title}`;
+            document.getElementById('fitting-popup').style.display = 'flex';
+            
+            // Plot original data
+            plotOriginalData();
+        }
+        
+        // Function to close fitting popup
+        function closeFittingPopup() {
+            document.getElementById('fitting-popup').style.display = 'none';
+            document.getElementById('fit-results').style.display = 'none';
+        }
+        
+        // Function to plot original data in popup
+        function plotOriginalData() {
+            const trace = {
+                x: currentFitData.x,
+                y: currentFitData.y,
+                mode: 'markers',
+                type: 'scatter',
+                name: 'Original Data',
+                marker: { color: 'blue', size: 6 }
+            };
+            
+            const layout = {
+                title: `Data for ${currentPlotTitle}`,
+                xaxis: { title: currentXLabel },
+                yaxis: { title: currentYLabel },
+                margin: { l: 50, r: 30, t: 50, b: 50 },
+                showlegend: true
+            };
+            
+            Plotly.newPlot('popup-plot', [trace], layout, { responsive: true });
+        }
+        
+        // Function to perform Gaussian fitting
+        function performGaussianFit() {
+            const gaussianCount = parseInt(document.getElementById('gaussian-count').value);
+            const xData = currentFitData.x;
+            const yData = currentFitData.y;
+            
+            if (!xData || !yData || xData.length === 0) {
+                alert('No data available for fitting');
+                return;
+            }
+            
+            try {
+                let fittedParams;
+                let fitFunction;
+                let paramNames;
+                
+                if (gaussianCount === 1) {
+                    // Single Gaussian fitting
+                    const maxY = Math.max(...yData);
+                    const maxIndex = yData.indexOf(maxY);
+                    const centerX = xData[maxIndex];
+                    const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 4;
+                    const bg = Math.min(...yData);
+                    
+                    const initialParams = [maxY, centerX, estimatedSigma, bg];
+                    fittedParams = levenbergMarquardt(xData, yData, gaussian_bg, initialParams);
+                    fitFunction = (x) => gaussian_bg(x, ...fittedParams);
+                    paramNames = ['Amplitude', 'Center', 'Sigma', 'Background'];
+                } else {
+                    // Double Gaussian fitting
+                    const maxY = Math.max(...yData);
+                    const maxIndex = yData.indexOf(maxY);
+                    const centerX = xData[maxIndex];
+                    const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 6;
+                    const bg = Math.min(...yData);
+                    
+                    // Initial guess: two Gaussians slightly offset from the center
+                    const initialParams = [
+                        maxY * 0.6, centerX - estimatedSigma, estimatedSigma,
+                        maxY * 0.4, centerX + estimatedSigma, estimatedSigma, bg
+                    ];
+                    
+                    fittedParams = levenbergMarquardt(xData, yData, doubleGaussian_bg, initialParams);
+                    fitFunction = (x) => doubleGaussian_bg(x, ...fittedParams);
+                    paramNames = ['Amplitude 1', 'Center 1', 'Sigma 1', 'Amplitude 2', 'Center 2', 'Sigma 2', 'Background'];
+                }
+                
+                // Generate fitted curve
+                const xMin = Math.min(...xData);
+                const xMax = Math.max(...xData);
+                const fittedX = [];
+                const fittedY = [];
+                
+                for (let i = 0; i <= 200; i++) {
+                    const x = xMin + (xMax - xMin) * i / 200;
+                    fittedX.push(x);
+                    fittedY.push(fitFunction(x));
+                }
+                
+                // Plot results
+                const originalTrace = {
+                    x: xData,
+                    y: yData,
+                    mode: 'markers',
+                    type: 'scatter',
+                    name: 'Original Data',
+                    marker: { color: 'blue', size: 6 }
+                };
+                
+                const fittedTrace = {
+                    x: fittedX,
+                    y: fittedY,
+                    mode: 'lines',
+                    type: 'scatter',
+                    name: `${gaussianCount} Gaussian${gaussianCount > 1 ? 's' : ''} Fit`,
+                    line: { color: 'red', width: 2 }
+                };
+                
+                const layout = {
+                    title: `Gaussian Fitting - ${currentPlotTitle}`,
+                    xaxis: { title: currentXLabel },
+                    yaxis: { title: currentYLabel },
+                    margin: { l: 50, r: 30, t: 50, b: 50 },
+                    showlegend: true
+                };
+                
+                Plotly.newPlot('popup-plot', [originalTrace, fittedTrace], layout, { responsive: true });
+                
+                // Display fitting results
+                displayFitResults(fittedParams, paramNames);
+                
+            } catch (error) {
+                console.error('Fitting error:', error);
+                alert('Fitting failed. Please try with different initial conditions or check your data.');
+            }
+        }
+        
+        // Function to display fit results
+        function displayFitResults(params, paramNames) {
+            let resultsHTML = '';
+            
+            for (let i = 0; i < params.length; i++) {
+                resultsHTML += `
+                    <div class="fit-parameter">
+                        <span class="param-name">${paramNames[i]}:</span>
+                        <span class="param-value">${params[i].toFixed(6)}</span>
+                    </div>
+                `;
+            }
+            
+            // Calculate R-squared
+            const xData = currentFitData.x;
+            const yData = currentFitData.y;
+            const gaussianCount = parseInt(document.getElementById('gaussian-count').value);
+            
+            let yMean = yData.reduce((sum, y) => sum + y, 0) / yData.length;
+            let ssTotal = yData.reduce((sum, y) => sum + Math.pow(y - yMean, 2), 0);
+            let ssRes = 0;
+            
+            for (let i = 0; i < xData.length; i++) {
+                let yPred;
+                if (gaussianCount === 1) {
+                    yPred = gaussian(xData[i], ...params);
+                } else {
+                    yPred = doubleGaussian(xData[i], ...params);
+                }
+                ssRes += Math.pow(yData[i] - yPred, 2);
+            }
+            
+            const rSquared = 1 - (ssRes / ssTotal);
+            
+            resultsHTML += `
+                <div class="fit-parameter">
+                    <span class="param-name">R²:</span>
+                    <span class="param-value">${rSquared.toFixed(6)}</span>
+                </div>
+            `;
+            
+            document.getElementById('fit-parameters').innerHTML = resultsHTML;
+            document.getElementById('fit-results').style.display = 'block';
+        }
+        
+        // Main function to process and optionally plot the data
+        async function processData() {
+            clearMessages();
+            
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.multiple = true;
+            fileInput.accept = '.txt,.csv,.dat';
+            fileInput.style.display = 'none';
+            document.body.appendChild(fileInput);
+            
+            fileInput.addEventListener('change', async function() {
+                try {
+                    if (fileInput.files.length === 0) {
+                        showError("No files selected. Please try again.");
+                        return;
+                    }
+                    
+                    const files = Array.from(fileInput.files);
+                    showInfo(`Processing ${files.length} files...`);
+                    updateFileInfo(files);
+                    
+                    // Check if plotting is enabled
+                    const enablePlots = document.getElementById('enable-plots').checked;
+                    const tabsContainer = document.getElementById('tabs-container');
+                    
+                    if (enablePlots) {
+                        tabsContainer.style.display = 'block';
+                        createPlotContainers(files.length);
+                        switchTab('plot');
+                    } else {
+                        tabsContainer.style.display = 'none';
+                    }
+                    
+                    let textContent = '';
+                    const fileDataStore = []; // Store full data for each file
+                    const summaries = []; // Store scan summaries
+                    
+                    for (let i = 0; i < files.length; i++) {
+                        const file = files[i];
+                        const plotId = enablePlots ? `plot-${i}` : null;
+                        
+                        try {
+                            const content = await readFileContent(file);
+                            const { columnNames, data, detectorColumnIndex, scanTitle } = parseDataWithHeaders(content);
+                            
+                            // Create scan summary
+                            const summary = createScanSummary(columnNames, data, i, file.name);
+                            summaries.push(summary);
+                            
+                            // Only plot if enabled
+                            if (enablePlots && plotId) {
+                                const xColumnIndex = summary.scanningMotorIndex;
+                                const indexColumnIndex = 0;
+                                
+                                // Plotting
+                                const xValues = data.map(row => row[xColumnIndex]);
+                                const yValues = data.map(row => row[detectorColumnIndex]);
+                                const indices = data.map(row => row[indexColumnIndex]);
+                                
+                                const truncatedName = truncateFileName(file.name);
+                                const trace = {
+                                    x: xValues,
+                                    y: yValues,
+                                    mode: 'lines+markers',
+                                    type: 'scatter',
+                                    name: truncatedName,
+                                    text: indices.map(idx => `Point: ${idx}`),
+                                    hovertemplate: 'X: %{x}<br>Y: %{y}<br>%{text}<extra></extra>'
+                                };
+                                
+                                const layout = {
+                                    title: truncatedName,
+                                    xaxis: { title: columnNames[xColumnIndex] || 'X Axis', showgrid: true, gridcolor: '#e6e6e6' },
+                                    yaxis: { title: columnNames[detectorColumnIndex] || 'Detector', showgrid: true, gridcolor: '#e6e6e6' },
+                                    margin: { l: 50, r: 30, t: 50, b: 50 },
+                                    hovermode: 'closest',
+                                    plot_bgcolor: '#ffffff',
+                                    paper_bgcolor: '#ffffff'
+                                };
+                                
+                                Plotly.newPlot(plotId, [trace], layout, { responsive: true });
+                                
+                                // Add click event to open fitting popup
+                                document.getElementById(plotId).on('plotly_click', function(data) {
+                                    openFittingPopup(xValues, yValues, truncatedName, columnNames[xColumnIndex], columnNames[detectorColumnIndex]);
+                                });
+                            }
+                            
+                            // Text tab content
+                            const desiredColumns = ['h', 'k', 'l', 'e', 'detector', 'monitor'];
+                            const colIndices = [summary.scanningMotorIndex];
+                            desiredColumns.forEach(col => {
+                                const idx = columnNames.findIndex(name => name.toLowerCase() === col.toLowerCase());
+                                if (idx !== -1) colIndices.push(idx);
+                            });
+                            
+                            fileDataStore[i] = { columnNames, data, colIndices };
+                            
+                            textContent += `<div class="file-section" id="file-section-${i}">`;
+                            textContent += `<h3>${file.name}</h3>`;
+                            textContent += `<p><strong>Scan Title:</strong> ${scanTitle || 'Not found'}</p>`;
+                            textContent += `<p><strong>Scan Description:</strong> ${summary.scanDescription}</p>`;
+                            textContent += `<div id="table-${i}">${generateTableHTML(columnNames, data, colIndices, 10)}</div>`;
+                            textContent += `<button class="dropdown-btn" onclick="toggleData(${i})" id="btn-${i}">Show Full Data</button>`;
+                            textContent += '</div>';
+                            
+                        } catch (error) {
+                            console.error(`Error processing file ${file.name}:`, error);
+                            if (enablePlots && plotId) {
+                                document.getElementById(plotId).innerHTML = `
+                                    <div style="height:100%; display:flex; align-items:center; justify-content:center; color:#d32f2f; text-align:center; padding:20px;">
+                                        <div>
+                                            <h3>Error in file: ${file.name}</h3>
+                                            <p>${error.message}</p>
+                                        </div>
+                                    </div>
+                                `;
+                            }
+                            textContent += `<div class="file-section"><h3>${file.name}</h3><p>Error: ${error.message}</p></div>`;
+                        }
+                    }
+                    
+                    document.getElementById('text-tab').innerHTML = textContent;
+                    window.fileDataStore = fileDataStore; // Make data accessible globally for toggle function
+                    
+                    // Update the summary table
+                    updateSummaryTable(summaries);
+                    
+                    showInfo(`Successfully processed ${files.length} files.`);
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    showError(`Error processing files: ${error.message}`);
+                }
+                
+                document.body.removeChild(fileInput);
+            });
+            
+            fileInput.click();
+        }
+        
+        // Function to toggle between showing 10 lines and full data
+        function toggleData(index) {
+            const tableDiv = document.getElementById(`table-${index}`);
+            const btn = document.getElementById(`btn-${index}`);
+            const { columnNames, data, colIndices } = window.fileDataStore[index];
+            
+            if (btn.textContent === 'Show Full Data') {
+                tableDiv.innerHTML = generateTableHTML(columnNames, data, colIndices, 'full');
+                btn.textContent = 'Show Less';
+            } else {
+                tableDiv.innerHTML = generateTableHTML(columnNames, data, colIndices, 10);
+                btn.textContent = 'Show Full Data';
+            }
+        }
+    </script>
+</body>
+</html>
