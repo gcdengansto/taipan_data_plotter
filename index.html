@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data File Plotter with Summary</title>
+    <title>Quick Taipan Data Plotter with Summary</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.16.1/plotly.min.js"></script>
     <style>
         body {
@@ -222,15 +222,99 @@
             z-index: 1000;
         }
         
+        
+
+        /* REPLACE WITH: */
         .popup-window {
             background-color: white;
             border-radius: 8px;
             padding: 20px;
-            width: 80%;
-            max-width: 800px;
-            max-height: 90%;
+            width: 92%;
+            max-width: 1100px;
+            max-height: 90vh;
             overflow-y: auto;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .popup-body {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+        }
+
+        .popup-plot-area {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .init-params-panel {
+            width: 220px;
+            flex-shrink: 0;
+            background-color: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 12px;
+            font-size: 13px;
+        }
+
+        .init-params-panel h4 {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 6px;
+        }
+
+        .init-param-row {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            margin-bottom: 7px;
+        }
+
+        .init-param-row label {
+            font-weight: normal;
+            font-size: 12px;
+            width: 75px;
+            flex-shrink: 0;
+            color: #555;
+        }
+
+        .init-param-row input[type="number"] {
+            width: 75px;
+            padding: 3px 5px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 12px;
+        }
+
+        .init-param-row input[type="checkbox"] {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        .init-param-row .fix-label {
+            font-size: 11px;
+            color: #888;
+            width: auto;
+        }
+
+        .init-params-panel .reset-btn {
+            width: 100%;
+            padding: 6px;
+            font-size: 12px;
+            margin-top: 8px;
+            background-color: #757575;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: normal;
+        }
+
+        .init-params-panel .reset-btn:hover {
+            background-color: #616161;
         }
         
         .popup-header {
@@ -319,6 +403,55 @@
         .fit-parameter .param-value {
             color: #2196F3;
         }
+
+        /* Calibration popup styles */
+        .calibr-file-list {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 12px;
+            background: #fff;
+        }
+        .calibr-file-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 2px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        .calibr-file-row:last-child { border-bottom: none; }
+        .calibr-file-row input[type="checkbox"] { width: 15px; height: 15px; flex-shrink: 0; }
+        .calibr-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 10px;
+        }
+        .calibr-table th, .calibr-table td {
+            border: 1px solid #ddd;
+            padding: 7px 10px;
+            text-align: right;
+        }
+        .calibr-table th { background: #f1f1f1; font-weight: bold; text-align: center; }
+        .calibr-table tr:nth-child(even) { background: #f9f9f9; }
+        .calibr-result-box {
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 5px;
+            padding: 14px 18px;
+            margin-top: 14px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .calibr-result-box h4 { margin: 0 0 8px 0; color: #2e7d32; }
+        .calibr-result-row { margin: 4px 0; display: flex; gap: 12px; }
+        .calibr-result-row .cr-name { font-weight: bold; width: 80px; }
+        .calibr-result-row .cr-val  { color: #1565c0; }
+        .calibr-warn { color: #b71c1c; font-size: 12px; margin-top: 6px; }
+
     </style>
 </head>
 <body>
@@ -333,7 +466,11 @@
                     <label for="enable-plots">Enable Plotting</label>
                 </div>
             </div>
-            <button onclick="processData()">Select and Process Data Files</button>
+           
+            <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+                <button onclick="processData()">Select and Process Data Files</button>
+                <button onclick="openCalibrPopup()" style="background:#1976D2;">Calibrate with Six Ni Peaks</button>
+            </div>
         </div>
         
         <div id="file-info-section" style="display: none;" class="file-info">
@@ -367,30 +504,68 @@
         </div>
         
         <!-- Popup window for Gaussian fitting -->
+            
+        <!-- REPLACE WITH: -->
         <div id="fitting-popup" class="popup-overlay" style="display: none;">
             <div class="popup-window">
                 <div class="popup-header">
                     <h2 id="popup-title">Gaussian Fitting</h2>
                     <button class="popup-close" onclick="closeFittingPopup()">Close</button>
                 </div>
-                
+
                 <div class="fitting-controls">
                     <label for="gaussian-count">Number of Gaussians:</label>
-                    <select id="gaussian-count">
+                    <select id="gaussian-count" onchange="updateInitParamFields()">
                         <option value="1">1 Gaussian</option>
                         <option value="2">2 Gaussians</option>
                     </select>
                     <button class="fit-button" onclick="performGaussianFit()">Fit Data</button>
                 </div>
-                
-                <div id="popup-plot" class="popup-plot"></div>
-                
-                <div id="fit-results" class="fit-results" style="display: none;">
-                    <h3>Fitting Results:</h3>
-                    <div id="fit-parameters"></div>
+
+                <div class="popup-body">
+                    <div class="popup-plot-area">
+                        <div id="popup-plot" class="popup-plot"></div>
+                        <div id="fit-results" class="fit-results" style="display: none;">
+                            <h3>Fitting Results:</h3>
+                            <div id="fit-parameters"></div>
+                        </div>
+                    </div>
+                    <div class="init-params-panel">
+                        <h4>Initial Parameters</h4>
+                        <div id="init-param-fields"></div>
+                        <button class="reset-btn" onclick="resetInitParams()">Reset from Data</button>
+                    </div>
                 </div>
             </div>
         </div>
+
+        <!-- Calibration popup -->
+        <div id="calibr-popup" class="popup-overlay" style="display:none;">
+            <div class="popup-window" style="max-width:720px;">
+                <div class="popup-header">
+                    <h2>Calibrate with Six Ni Peaks</h2>
+                    <button class="popup-close" onclick="closeCalibrPopup()">Close</button>
+                </div>
+
+                <p style="margin:0 0 10px;font-size:13px;color:#555;">
+                    Select exactly 6 files (one per Ni reflection). They will be auto-sorted by fitted s2
+                    position (descending) and matched to the Ni HKL list in order.
+                </p>
+
+                <div id="calibr-file-list" class="calibr-file-list"></div>
+                <div id="calibr-sel-count" style="font-size:12px;color:#888;margin-bottom:10px;"></div>
+
+                <div style="display:flex;gap:10px;margin-bottom:16px;">
+                    <button class="fit-button" onclick="runCalibrFits()" style="width:auto;padding:8px 18px;font-size:14px;">Fit All Selected</button>
+                    <button id="calibr-btn" class="fit-button" onclick="runCalibration()"
+                        style="width:auto;padding:8px 18px;font-size:14px;background:#388e3c;display:none;">Calibrate</button>
+                </div>
+
+                <div id="calibr-fit-table-area"></div>
+                <div id="calibr-result-area"></div>
+            </div>
+        </div>
+
     </div>
 
     <script>
@@ -879,18 +1054,102 @@
             
             return x;
         }
-        
+        //////////////////////////new code//////////////////
+
+        // Compute auto initial params from data (returns object by gaussianCount)
+        function computeAutoInitParams(xData, yData, gaussianCount) {
+            const maxY = Math.max(...yData);
+            const maxIndex = yData.indexOf(maxY);
+            const centerX = xData[maxIndex];
+            const bg = Math.min(...yData);
+
+            if (gaussianCount === 1) {
+                const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 4;
+                return [
+                    { name: 'Amplitude', value: maxY },
+                    { name: 'Center',    value: centerX },
+                    { name: 'Sigma',     value: estimatedSigma },
+                    { name: 'Background',value: bg }
+                ];
+            } else {
+                const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 6;
+                return [
+                    { name: 'Amplitude 1', value: maxY * 0.6 },
+                    { name: 'Center 1',    value: centerX - estimatedSigma },
+                    { name: 'Sigma 1',     value: estimatedSigma },
+                    { name: 'Amplitude 2', value: maxY * 0.4 },
+                    { name: 'Center 2',    value: centerX + estimatedSigma },
+                    { name: 'Sigma 2',     value: estimatedSigma },
+                    { name: 'Background',  value: bg }
+                ];
+            }
+        }
+
+        // Render the initial parameter input fields
+        function updateInitParamFields() {
+            if (!currentFitData) return;
+            const gaussianCount = parseInt(document.getElementById('gaussian-count').value);
+            const params = computeAutoInitParams(currentFitData.x, currentFitData.y, gaussianCount);
+            renderInitParamFields(params);
+        }
+
+        function renderInitParamFields(params) {
+            const container = document.getElementById('init-param-fields');
+            container.innerHTML = '';
+            params.forEach((p, i) => {
+                const row = document.createElement('div');
+                row.className = 'init-param-row';
+                row.innerHTML = `
+                    <label title="${p.name}">${p.name}:</label>
+                    <input type="number" id="init-param-${i}" value="${parseFloat(p.value.toPrecision(5))}" step="any">
+                    <input type="checkbox" id="fix-param-${i}" title="Fix this parameter">
+                    <span class="fix-label">fix</span>
+                `;
+                container.appendChild(row);
+            });
+        }
+
+        // Reset initial params to auto-computed values
+        function resetInitParams() {
+            updateInitParamFields();
+        }
+
+        // Read current initial params from the UI fields
+        function getInitParamsFromUI(paramCount) {
+            const values = [];
+            const fixed = [];
+            for (let i = 0; i < paramCount; i++) {
+                const input = document.getElementById(`init-param-${i}`);
+                const fixCb = document.getElementById(`fix-param-${i}`);
+                values.push(input ? parseFloat(input.value) : 0);
+                fixed.push(fixCb ? fixCb.checked : false);
+            }
+            return { values, fixed };
+        }
+
+
+
+
+        /////////////////////////new code end/////////////////
+
+
+
+
         // Function to open fitting popup
+                
+        // REPLACE WITH:
         function openFittingPopup(xData, yData, title, xLabel, yLabel) {
             currentFitData = { x: xData, y: yData };
             currentPlotTitle = title;
             currentXLabel = xLabel;
             currentYLabel = yLabel;
-            
+
             document.getElementById('popup-title').textContent = `Gaussian Fitting - ${title}`;
+            document.getElementById('fit-results').style.display = 'none';
             document.getElementById('fitting-popup').style.display = 'flex';
-            
-            // Plot original data
+
+            // Populate initial parameter fields and plot data
+            updateInitParamFields();
             plotOriginalData();
         }
         
@@ -933,40 +1192,41 @@
                 return;
             }
             
+           // REPLACE WITH:
             try {
                 let fittedParams;
                 let fitFunction;
                 let paramNames;
-                
+
                 if (gaussianCount === 1) {
-                    // Single Gaussian fitting
-                    const maxY = Math.max(...yData);
-                    const maxIndex = yData.indexOf(maxY);
-                    const centerX = xData[maxIndex];
-                    const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 4;
-                    const bg = Math.min(...yData);
-                    
-                    const initialParams = [maxY, centerX, estimatedSigma, bg];
-                    fittedParams = levenbergMarquardt(xData, yData, gaussian_bg, initialParams);
-                    fitFunction = (x) => gaussian_bg(x, ...fittedParams);
                     paramNames = ['Amplitude', 'Center', 'Sigma', 'Background'];
+                    const { values: initVals, fixed } = getInitParamsFromUI(paramNames.length);
+                    // Wrap function to honour fixed params
+                    const freeIndices = paramNames.map((_, i) => i).filter(i => !fixed[i]);
+                    const makeFullParams = (freeVals) => {
+                        const full = [...initVals];
+                        freeIndices.forEach((idx, j) => { full[idx] = freeVals[j]; });
+                        return full;
+                    };
+                    const freeInit = freeIndices.map(i => initVals[i]);
+                    const wrappedFunc = (x, ...freeVals) => gaussian_bg(x, ...makeFullParams(freeVals));
+                    const freeParams = levenbergMarquardt(xData, yData, wrappedFunc, freeInit);
+                    fittedParams = makeFullParams(freeParams);
+                    fitFunction = (x) => gaussian_bg(x, ...fittedParams);
                 } else {
-                    // Double Gaussian fitting
-                    const maxY = Math.max(...yData);
-                    const maxIndex = yData.indexOf(maxY);
-                    const centerX = xData[maxIndex];
-                    const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 6;
-                    const bg = Math.min(...yData);
-                    
-                    // Initial guess: two Gaussians slightly offset from the center
-                    const initialParams = [
-                        maxY * 0.6, centerX - estimatedSigma, estimatedSigma,
-                        maxY * 0.4, centerX + estimatedSigma, estimatedSigma, bg
-                    ];
-                    
-                    fittedParams = levenbergMarquardt(xData, yData, doubleGaussian_bg, initialParams);
-                    fitFunction = (x) => doubleGaussian_bg(x, ...fittedParams);
                     paramNames = ['Amplitude 1', 'Center 1', 'Sigma 1', 'Amplitude 2', 'Center 2', 'Sigma 2', 'Background'];
+                    const { values: initVals, fixed } = getInitParamsFromUI(paramNames.length);
+                    const freeIndices = paramNames.map((_, i) => i).filter(i => !fixed[i]);
+                    const makeFullParams = (freeVals) => {
+                        const full = [...initVals];
+                        freeIndices.forEach((idx, j) => { full[idx] = freeVals[j]; });
+                        return full;
+                    };
+                    const freeInit = freeIndices.map(i => initVals[i]);
+                    const wrappedFunc = (x, ...freeVals) => doubleGaussian_bg(x, ...makeFullParams(freeVals));
+                    const freeParams = levenbergMarquardt(xData, yData, wrappedFunc, freeInit);
+                    fittedParams = makeFullParams(freeParams);
+                    fitFunction = (x) => doubleGaussian_bg(x, ...fittedParams);
                 }
                 
                 // Generate fitted curve
@@ -1008,6 +1268,9 @@
                     showlegend: true
                 };
                 
+                //Plotly.newPlot('popup-plot', [originalTrace, fittedTrace], layout, { responsive: true });
+
+                //Plotly.newPlot(plotId, [trace], layout, { responsive: true, doubleClick: false });
                 Plotly.newPlot('popup-plot', [originalTrace, fittedTrace], layout, { responsive: true });
                 
                 // Display fitting results
@@ -1145,12 +1408,16 @@
                                     paper_bgcolor: '#ffffff'
                                 };
                                 
-                                Plotly.newPlot(plotId, [trace], layout, { responsive: true });
+                                //Plotly.newPlot(plotId, [trace], layout, { responsive: true });
+                                Plotly.newPlot(plotId, [trace], layout, { responsive: true, doubleClick: false });
                                 
                                 // Add click event to open fitting popup
-                                document.getElementById(plotId).on('plotly_click', function(data) {
-                                    openFittingPopup(xValues, yValues, truncatedName, columnNames[xColumnIndex], columnNames[detectorColumnIndex]);
-                                });
+                                
+                            
+                            // REPLACE WITH:
+                                document.getElementById(plotId).addEventListener('dblclick', function() {
+                                openFittingPopup(xValues, yValues, truncatedName, columnNames[xColumnIndex], columnNames[detectorColumnIndex]);
+                            });
                             }
                             
                             // Text tab content
@@ -1188,7 +1455,12 @@
                     }
                     
                     document.getElementById('text-tab').innerHTML = textContent;
+                    //window.fileDataStore = fileDataStore; // Make data accessible globally for toggle function
+
+                    // REPLACE WITH:
                     window.fileDataStore = fileDataStore; // Make data accessible globally for toggle function
+                    window.fileSummaries = summaries;     // Store summaries globally for calibration
+                    window.fileNames = files.map(f => f.name); // Store file names globally
                     
                     // Update the summary table
                     updateSummaryTable(summaries);
@@ -1220,6 +1492,282 @@
                 btn.textContent = 'Show Full Data';
             }
         }
+
+
+        /////////////////////////////////////////
+        // new script for calibration
+        // ─── Calibration globals ────────────────────────────────────────────────
+        const NI_LATTICE_CONSTANT = 3.524;   // Angstroms
+        const PG002_D_SPACING     = 3.355;   // Angstroms
+        const NI_HKL = [
+            [0.5, 0.5, 0.5],
+            [1,   0,   0  ],
+            [1,   1,   0  ],
+            [0.5, 0.5, 1.5],
+            [1,   1,   1  ],
+            [2,   0,   0  ]
+        ];
+
+        let calibrFitResults = [];   // [{fileName, x0, amplitude, sigma, bg, xData, yData}]
+
+        // ─── Open / close ────────────────────────────────────────────────────────
+        function openCalibrPopup() {
+            if (!window.fileDataStore || window.fileDataStore.length === 0) {
+                alert('Please load data files first.');
+                return;
+            }
+            calibrFitResults = [];
+            document.getElementById('calibr-fit-table-area').innerHTML = '';
+            document.getElementById('calibr-result-area').innerHTML = '';
+            document.getElementById('calibr-btn').style.display = 'none';
+            buildCalibrFileList();
+            document.getElementById('calibr-popup').style.display = 'flex';
+        }
+
+        function closeCalibrPopup() {
+            document.getElementById('calibr-popup').style.display = 'none';
+        }
+
+        // ─── Build the file checklist ────────────────────────────────────────────
+        function buildCalibrFileList() {
+            const container = document.getElementById('calibr-file-list');
+            container.innerHTML = '';
+            const names = window.fileNames || [];
+            names.forEach((name, i) => {
+                const row = document.createElement('div');
+                row.className = 'calibr-file-row';
+                row.innerHTML = `
+                    <input type="checkbox" id="calibr-cb-${i}" onchange="updateCalibrSelCount()">
+                    <label for="calibr-cb-${i}" style="font-weight:normal;cursor:pointer;">${name}</label>`;
+                container.appendChild(row);
+            });
+            updateCalibrSelCount();
+        }
+
+        function updateCalibrSelCount() {
+            const checked = getCheckedCalibrIndices();
+            const el = document.getElementById('calibr-sel-count');
+            el.textContent = `${checked.length} / 6 files selected`;
+            el.style.color = checked.length === 6 ? '#2e7d32' : '#b71c1c';
+        }
+
+        function getCheckedCalibrIndices() {
+            const names = window.fileNames || [];
+            return names.map((_, i) => i).filter(i => {
+                const cb = document.getElementById(`calibr-cb-${i}`);
+                return cb && cb.checked;
+            });
+        }
+
+        // ─── Fit all six selected scans ──────────────────────────────────────────
+        function runCalibrFits() {
+            const indices = getCheckedCalibrIndices();
+            if (indices.length !== 6) {
+                alert('Please select exactly 6 files.');
+                return;
+            }
+
+            calibrFitResults = [];
+            const tableArea = document.getElementById('calibr-fit-table-area');
+            tableArea.innerHTML = '<p style="color:#888;font-size:13px;">Fitting…</p>';
+
+            for (const idx of indices) {
+                const store = window.fileDataStore[idx];
+                const summary = window.fileSummaries[idx];
+                const name = window.fileNames[idx];
+
+                if (!store) { alert(`No data for file: ${name}`); return; }
+
+                const xColumnIndex = summary.scanningMotorIndex;
+                const detectorIndex = store.columnNames.findIndex(n => n.toLowerCase() === 'detector');
+                if (detectorIndex === -1) { alert(`No detector column in: ${name}`); return; }
+
+                const xData = store.data.map(r => r[xColumnIndex]);
+                const yData = store.data.map(r => r[detectorIndex]);
+
+                // Auto initial params (single Gaussian + background)
+                const maxY = Math.max(...yData);
+                const maxIdx = yData.indexOf(maxY);
+                const centerX = xData[maxIdx];
+                const sigma0  = (Math.max(...xData) - Math.min(...xData)) / 4;
+                const bg0     = Math.min(...yData);
+                const initParams = [maxY, centerX, sigma0, bg0];
+
+                let fitted;
+                try {
+                    fitted = levenbergMarquardt(xData, yData, gaussian_bg, initParams);
+                } catch(e) {
+                    alert(`Fitting failed for ${name}: ${e.message}`);
+                    return;
+                }
+
+                calibrFitResults.push({
+                    fileName: name,
+                    x0:        fitted[1],
+                    amplitude: fitted[0],
+                    sigma:     fitted[2],
+                    bg:        fitted[3],
+                    xData, yData, fittedParams: fitted
+                });
+            }
+
+            // Sort by x0 descending (matches Python code)
+            calibrFitResults.sort((a, b) => b.x0 - a.x0);
+
+            renderCalibrFitTable();
+            document.getElementById('calibr-btn').style.display = 'inline-block';
+        }
+
+        // ─── Render the fitted-peaks table ───────────────────────────────────────
+        function renderCalibrFitTable() {
+            const area = document.getElementById('calibr-fit-table-area');
+            let html = `
+                <table class="calibr-table">
+                    <thead><tr>
+                        <th>#</th><th>File</th><th>s2 Position</th>
+                        <th>Amplitude</th><th>Sigma</th><th>Background</th>
+                    </tr></thead><tbody>`;
+            calibrFitResults.forEach((r, i) => {
+                html += `<tr>
+                    <td style="text-align:center;">${i+1}</td>
+                    <td style="text-align:left;">${r.fileName}</td>
+                    <td>${r.x0.toFixed(5)}</td>
+                    <td>${r.amplitude.toFixed(3)}</td>
+                    <td>${r.sigma.toFixed(5)}</td>
+                    <td>${r.bg.toFixed(3)}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            area.innerHTML = html;
+        }
+
+        // ─── Calibration (JS port of Python ni_s2_residual + Levenberg-Marquardt) ──
+        function niS2Model(s2_offset, wavelen) {
+            // Returns array of 6 calculated s2 positions, sorted descending (matching sorted peaks)
+            const ni_a = NI_LATTICE_CONSTANT;
+            const calc = NI_HKL.map(hkl => {
+                const d_inv = Math.sqrt(hkl[0]**2 + hkl[1]**2 + hkl[2]**2) / ni_a;
+                // s2 = -(arcsin(lambda * d_inv / 2) * 360/pi + s2_offset)
+                return -(Math.asin(wavelen * d_inv / 2) * 360 / Math.PI + s2_offset);
+            });
+            // Sort descending to match measured peaks sorted descending
+            return calc.sort((a, b) => b - a);
+        }
+
+        function calibrResiduals(params, measuredS2) {
+            const [s2_offset, wavelen] = params;
+            const calcS2 = niS2Model(s2_offset, wavelen);
+            return calcS2.map((c, i) => c - measuredS2[i]);
+        }
+
+        function calibrLM(measuredS2) {
+            // 2-parameter LM fit: [s2_offset, wavelen]
+            let params = [0.01, 2.345];   // initial values from Python
+            let lambda = 0.001;
+            let prevErr = Infinity;
+            const maxIter = 2000;
+            const tol = 1e-12;
+            const h = 1e-7;
+
+            for (let iter = 0; iter < maxIter; iter++) {
+                const res = calibrResiduals(params, measuredS2);
+                const curErr = res.reduce((s, r) => s + r*r, 0);
+
+                if (Math.abs(prevErr - curErr) < tol) break;
+
+                // Jacobian (numerical, 2 params x 6 residuals)
+                const J = res.map((_, i) => {
+                    const row = [];
+                    for (let j = 0; j < 2; j++) {
+                        const pp = [...params]; pp[j] += h;
+                        const pm = [...params]; pm[j] -= h;
+                        const rp = calibrResiduals(pp, measuredS2);
+                        const rm = calibrResiduals(pm, measuredS2);
+                        row.push((rp[i] - rm[i]) / (2*h));
+                    }
+                    return row;
+                });
+
+                // JtJ and JtR
+                const JtJ = [[0,0],[0,0]];
+                const JtR = [0, 0];
+                for (let i = 0; i < res.length; i++) {
+                    for (let a = 0; a < 2; a++) {
+                        JtR[a] += J[i][a] * res[i];
+                        for (let b = 0; b < 2; b++) JtJ[a][b] += J[i][a] * J[i][b];
+                    }
+                }
+                JtJ[0][0] += lambda; JtJ[1][1] += lambda;
+
+                const delta = solveLinearSystem(JtJ, JtR);
+                const newParams = params.map((p, j) => p + delta[j]);
+                const newErr = calibrResiduals(newParams, measuredS2).reduce((s,r)=>s+r*r,0);
+
+                if (newErr < curErr) { params = newParams; lambda /= 10; prevErr = curErr; }
+                else                 { lambda *= 10; }
+            }
+            return params;
+        }
+
+        function runCalibration() {
+            if (calibrFitResults.length !== 6) {
+                alert('Please fit 6 peaks first.');
+                return;
+            }
+
+            const measuredS2 = calibrFitResults.map(r => r.x0);  // already sorted descending
+
+            let s2_offset, wavelen;
+            try {
+                [s2_offset, wavelen] = calibrLM(measuredS2);
+            } catch(e) {
+                alert('Calibration fitting failed: ' + e.message);
+                return;
+            }
+
+            const m1 = Math.asin(wavelen / 2.0 / PG002_D_SPACING) * 180 / Math.PI;
+            const m2 = 2 * m1;
+
+            // Compute residuals for display
+            const calcS2 = niS2Model(s2_offset, wavelen);
+            const resids = measuredS2.map((m, i) => m - calcS2[i]);
+
+            // Update table with calculated vs measured
+            const area = document.getElementById('calibr-fit-table-area');
+            let html = `
+                <table class="calibr-table">
+                    <thead><tr>
+                        <th>#</th><th>File</th>
+                        <th>Measured s2</th><th>Calculated s2</th><th>Residual</th>
+                        <th>Amplitude</th><th>Sigma</th>
+                    </tr></thead><tbody>`;
+            calibrFitResults.forEach((r, i) => {
+                const resid = resids[i];
+                const color = Math.abs(resid) > 0.1 ? 'color:#b71c1c;' : '';
+                html += `<tr>
+                    <td style="text-align:center;">${i+1}</td>
+                    <td style="text-align:left;">${r.fileName}</td>
+                    <td>${r.x0.toFixed(5)}</td>
+                    <td>${calcS2[i].toFixed(5)}</td>
+                    <td style="${color}">${resid.toFixed(5)}</td>
+                    <td>${r.amplitude.toFixed(3)}</td>
+                    <td>${r.sigma.toFixed(5)}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            area.innerHTML = html;
+
+            // Show calibration result
+            document.getElementById('calibr-result-area').innerHTML = `
+                <div class="calibr-result-box">
+                    <h4>Calibration Result</h4>
+                    <div class="calibr-result-row"><span class="cr-name">m1:</span>  <span class="cr-val">${m1.toFixed(8)}°</span></div>
+                    <div class="calibr-result-row"><span class="cr-name">m2:</span>  <span class="cr-val">${m2.toFixed(8)}°</span></div>
+                    <div class="calibr-result-row"><span class="cr-name">s2 offset:</span><span class="cr-val">${s2_offset.toFixed(8)}°</span></div>
+                    <div class="calibr-result-row"><span class="cr-name">wavelength:</span><span class="cr-val">${wavelen.toFixed(8)} Å</span></div>
+                </div>`;
+        }
+
     </script>
 </body>
 </html>
