@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Taipan Data Plotter with Summary</title>
+    <title>Taipan Data File Plotter with Summary</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/plotly.js/2.16.1/plotly.min.js"></script>
     <style>
         body {
@@ -1654,36 +1654,40 @@
             return calc.sort((a, b) => b - a);
         }
 
+
+
+        // REPLACE WITH:
         function calibrResiduals(params, measuredS2) {
             const [s2_offset, wavelen] = params;
             const calcS2 = niS2Model(s2_offset, wavelen);
-            return calcS2.map((c, i) => c - measuredS2[i]);
+            return measuredS2.map((m, i) => m - calcS2[i]);   // measured - calc
         }
 
+        
+        // REPLACE WITH:
         function calibrLM(measuredS2) {
-            // 2-parameter LM fit: [s2_offset, wavelen]
-            let params = [0.01, 2.345];   // initial values from Python
+            let params = [0.01, 2.345];
             let lambda = 0.001;
-            let prevErr = Infinity;
-            const maxIter = 2000;
-            const tol = 1e-12;
-            const h = 1e-7;
+            const maxIter = 5000;
+            const tol = 1e-10;
+            const h = 1e-6;
+            const history = [];   // ← stores every accepted step
 
             for (let iter = 0; iter < maxIter; iter++) {
                 const res = calibrResiduals(params, measuredS2);
                 const curErr = res.reduce((s, r) => s + r*r, 0);
 
-                if (Math.abs(prevErr - curErr) < tol) break;
 
-                // Jacobian (numerical, 2 params x 6 residuals)
-                const J = res.map((_, i) => {
+                // Jacobian of model: J[i][j] = d(calcS2_i)/d(param_j)
+                const modelNow = niS2Model(params[0], params[1]);
+                const J = modelNow.map((_, i) => {
                     const row = [];
                     for (let j = 0; j < 2; j++) {
                         const pp = [...params]; pp[j] += h;
                         const pm = [...params]; pm[j] -= h;
-                        const rp = calibrResiduals(pp, measuredS2);
-                        const rm = calibrResiduals(pm, measuredS2);
-                        row.push((rp[i] - rm[i]) / (2*h));
+                        const mp = niS2Model(pp[0], pp[1]);
+                        const mm = niS2Model(pm[0], pm[1]);
+                        row.push((mp[i] - mm[i]) / (2*h));
                     }
                     return row;
                 });
@@ -1698,15 +1702,44 @@
                     }
                 }
                 JtJ[0][0] += lambda; JtJ[1][1] += lambda;
-
+                
+                /*
                 const delta = solveLinearSystem(JtJ, JtR);
                 const newParams = params.map((p, j) => p + delta[j]);
                 const newErr = calibrResiduals(newParams, measuredS2).reduce((s,r)=>s+r*r,0);
+                */
 
-                if (newErr < curErr) { params = newParams; lambda /= 10; prevErr = curErr; }
-                else                 { lambda *= 10; }
+                const delta = solveLinearSystem(JtJ, JtR);
+                // Standard LM update: params = params + delta
+                const newParams = [params[0] + delta[0], params[1] + delta[1]];
+                const resNew = calibrResiduals(newParams, measuredS2);
+                const newErr = resNew.reduce((s, r) => s + r * r, 0);
+
+                if (newErr < curErr) {
+                    params = newParams;
+                    // lambda /= 10;
+                    lambda = Math.max(1e-7, lambda / 10);
+
+                    // Record this accepted step
+                    const wl = params[1];
+                    const m1 = Math.asin(wl / 2.0 / PG002_D_SPACING) * 180 / Math.PI;
+                    history.push({
+                        iter:     iter + 1,
+                        s2_offset: params[0],
+                        wavelen:  wl,
+                        m1:       m1,
+                        m2:       2 * m1,
+                        chi2:     newErr
+                    });
+
+                    const paramChange = Math.sqrt(delta.reduce((s, d) => s + d*d, 0));
+                    if (paramChange < tol) break;
+                } else {
+                    // lambda *= 10;
+                    lambda = Math.min(1e3, lambda * 10);
+                }
             }
-            return params;
+            return { params, history };
         }
 
         function runCalibration() {
@@ -1717,9 +1750,12 @@
 
             const measuredS2 = calibrFitResults.map(r => r.x0);  // already sorted descending
 
-            let s2_offset, wavelen;
+            // REPLACE WITH:
+            let s2_offset, wavelen, history;
             try {
-                [s2_offset, wavelen] = calibrLM(measuredS2);
+                const result = calibrLM(measuredS2);
+                [s2_offset, wavelen] = result.params;
+                history = result.history;
             } catch(e) {
                 alert('Calibration fitting failed: ' + e.message);
                 return;
@@ -1757,15 +1793,47 @@
             html += '</tbody></table>';
             area.innerHTML = html;
 
+
+
+            // REPLACE WITH:
+            // Build iteration history table
+            let histHTML = `
+                <details style="margin-top:14px;">
+                    <summary style="cursor:pointer;font-weight:bold;font-size:13px;color:#1565c0;">
+                        Show iteration history (${history.length} accepted steps)
+                    </summary>
+                    <div style="max-height:300px;overflow-y:auto;margin-top:8px;">
+                    <table class="calibr-table">
+                        <thead><tr>
+                            <th>Iter</th>
+                            <th>m1 (°)</th>
+                            <th>m2 (°)</th>
+                            <th>s2 offset (°)</th>
+                            <th>wavelength (Å)</th>
+                            <th>χ²</th>
+                        </tr></thead><tbody>`;
+            history.forEach(row => {
+                histHTML += `<tr>
+                    <td style="text-align:center;">${row.iter}</td>
+                    <td>${row.m1.toFixed(6)}</td>
+                    <td>${row.m2.toFixed(6)}</td>
+                    <td>${row.s2_offset.toFixed(6)}</td>
+                    <td>${row.wavelen.toFixed(6)}</td>
+                    <td>${row.chi2.toFixed(6)}</td>
+                </tr>`;
+            });
+            histHTML += `</tbody></table></div></details>`;
+
             // Show calibration result
             document.getElementById('calibr-result-area').innerHTML = `
                 <div class="calibr-result-box">
                     <h4>Calibration Result</h4>
-                    <div class="calibr-result-row"><span class="cr-name">m1:</span>  <span class="cr-val">${m1.toFixed(8)}°</span></div>
-                    <div class="calibr-result-row"><span class="cr-name">m2:</span>  <span class="cr-val">${m2.toFixed(8)}°</span></div>
+                    <div class="calibr-result-row"><span class="cr-name">m1:</span>      <span class="cr-val">${m1.toFixed(8)}°</span></div>
+                    <div class="calibr-result-row"><span class="cr-name">m2:</span>      <span class="cr-val">${m2.toFixed(8)}°</span></div>
                     <div class="calibr-result-row"><span class="cr-name">s2 offset:</span><span class="cr-val">${s2_offset.toFixed(8)}°</span></div>
                     <div class="calibr-result-row"><span class="cr-name">wavelength:</span><span class="cr-val">${wavelen.toFixed(8)} Å</span></div>
-                </div>`;
+                </div>
+                ${histHTML}`;
         }
 
     </script>
