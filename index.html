@@ -452,11 +452,291 @@
         .calibr-result-row .cr-val  { color: #1565c0; }
         .calibr-warn { color: #b71c1c; font-size: 12px; margin-top: 6px; }
 
+
+        /* ── Group Line Plot & Intensity Map shared styles ── */
+        .glp-file-list, .imap-file-list {
+            max-height: 220px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 8px;
+            margin-bottom: 10px;
+            background: #fff;
+        }
+        .glp-file-row, .imap-file-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 4px 2px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        .glp-file-row:last-child, .imap-file-row:last-child { border-bottom: none; }
+        .glp-file-row input[type="checkbox"],
+        .imap-file-row input[type="checkbox"] { width: 15px; height: 15px; flex-shrink: 0; }
+        .glp-plot-area { height: 500px; margin-top: 12px; border: 1px solid #ddd; border-radius: 5px; }
+        .imap-plot-area { margin-top: 12px; border: 1px solid #ddd; border-radius: 5px; }
+        .imap-size-row { display:flex; align-items:center; gap:10px; font-size:13px; margin-top:8px; }
+        .imap-size-row label { font-weight:bold; min-width:90px; }
+        .imap-size-row input[type=range] { flex:1; min-width:120px; max-width:220px; }
+        .imap-size-row span { min-width:44px; color:#555; }
+        .imap-controls {
+            display: flex;
+            gap: 14px;
+            align-items: center;
+            flex-wrap: wrap;
+            padding: 10px 14px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            margin-top: 10px;
+            font-size: 13px;
+        }
+        .imap-controls label { font-weight: bold; margin-right: 3px; }
+        .imap-controls input[type="number"] {
+            width: 80px; padding: 4px 6px;
+            border: 1px solid #ccc; border-radius: 3px; font-size: 13px;
+        }
+        .imap-validation-msg {
+            padding: 8px 12px; border-radius: 4px; margin: 8px 0; font-size: 13px;
+        }
+        .imap-validation-msg.ok  { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .imap-validation-msg.err { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .popup-window-wide {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 96%;
+            max-width: 1200px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+
+        /* ── Combine Sweep Scans ── */
+        .css-popup-window {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 96%;
+            max-width: 1200px;
+            max-height: 92vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .css-layout {
+            display: grid;
+            grid-template-columns: 340px minmax(0, 1fr);
+            gap: 20px;
+            margin-top: 12px;
+        }
+        .css-left-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .css-section-title {
+            font-size: 12px;
+            font-weight: bold;
+            color: #555;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 5px;
+            margin-bottom: 8px;
+        }
+        .css-range-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        .css-range-row input[type="number"] {
+            width: 72px;
+            padding: 4px 6px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        .css-range-row .css-range-label { color: #555; white-space: nowrap; }
+        .css-remove-btn {
+            background: #f44336; color: white; border: none;
+            border-radius: 3px; padding: 3px 8px; cursor: pointer;
+            font-size: 12px; font-weight: bold;
+        }
+        .css-remove-btn:hover { background: #d32f2f; }
+        .css-add-btn {
+            background: #1976D2; color: white; border: none;
+            border-radius: 3px; padding: 4px 10px; cursor: pointer;
+            font-size: 13px; font-weight: bold; align-self: flex-start; width: fit-content; flex: 0 0 auto;
+        }
+        .css-add-btn:hover { background: #1565C0; }
+        .css-col-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 5px;
+        }
+        .css-col-tag {
+            background: #e3f2fd;
+            border: 1px solid #90caf9;
+            border-radius: 3px;
+            padding: 2px 8px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: default;
+        }
+        .css-col-tag .css-tag-remove {
+            cursor: pointer;
+            color: #f44336;
+            font-weight: bold;
+            font-size: 13px;
+            line-height: 1;
+        }
+        .css-col-tag .css-tag-remove:hover { color: #d32f2f; }
+        .css-available-cols {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            margin-top: 6px;
+            max-height: 100px;
+            overflow-y: auto;
+        }
+        .css-avail-col-btn {
+            background: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            padding: 2px 8px;
+            font-size: 12px;
+            cursor: pointer;
+            color: #333;
+        }
+        .css-avail-col-btn:hover { background: #e3f2fd; border-color: #90caf9; }
+        .css-avail-col-btn.selected { background: #bbdefb; border-color: #1976D2; }
+        .css-form-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 13px;
+            margin-bottom: 6px;
+        }
+        .css-form-row label { font-weight: bold; min-width: 100px; }
+        .css-form-row select, .css-form-row input[type="number"] {
+            flex: 1;
+            padding: 4px 7px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+        }
+        .css-msg {
+            padding: 7px 12px; border-radius: 4px; font-size: 13px; margin-bottom: 8px;
+        }
+        .css-msg.ok  { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .css-msg.err { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .css-msg.info { background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .css-plot-area { height: 460px; border: 1px solid #ddd; border-radius: 5px; }
+        .css-right-panel { display: flex; flex-direction: column; gap: 10px; margin-left: 0px; width: 100%; }
+
+        /* ── He-3 Polarization Analysis ── */
+        .he3-popup-window {
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            width: 96%;
+            max-width: 1100px;
+            max-height: 93vh;
+            overflow-y: auto;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        .he3-step-box {
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            background: #fafafa;
+        }
+        .he3-step-title {
+            font-size: 14px;
+            font-weight: bold;
+            color: #1565c0;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 6px;
+            margin-bottom: 10px;
+        }
+        .he3-file-list {
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 6px 8px;
+            background: #fff;
+            margin-bottom: 8px;
+        }
+        .he3-file-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 3px 2px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+        .he3-file-row:last-child { border-bottom: none; }
+        .he3-file-row input[type="checkbox"] { width: 15px; height: 15px; flex-shrink: 0; }
+        .he3-form-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 13px;
+            margin-bottom: 7px;
+            flex-wrap: wrap;
+        }
+        .he3-form-row label { font-weight: bold; min-width: 130px; }
+        .he3-form-row input[type="number"], .he3-form-row input[type="text"] {
+            padding: 4px 7px;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            font-size: 13px;
+            width: 110px;
+        }
+        .he3-msg { padding: 7px 12px; border-radius: 4px; font-size: 13px; margin: 6px 0; }
+        .he3-msg.ok  { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
+        .he3-msg.err { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        .he3-msg.info{ background: #e3f2fd; color: #1565c0; border: 1px solid #90caf9; }
+        .he3-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .he3-table th, .he3-table td {
+            border: 1px solid #ddd;
+            padding: 5px 9px;
+            text-align: right;
+        }
+        .he3-table th { background: #f1f1f1; font-weight: bold; text-align: center; }
+        .he3-table tr:nth-child(even) { background: #f9f9f9; }
+        .he3-result-box {
+            background: #e8f5e9;
+            border: 1px solid #a5d6a7;
+            border-radius: 5px;
+            padding: 12px 16px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        .he3-result-box h4 { margin: 0 0 7px 0; color: #2e7d32; }
+        .he3-plot-area { height: 280px; border: 1px solid #ddd; border-radius: 5px; margin-top: 8px; }
+        .he3-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+        @media (max-width: 800px) { .he3-two-col { grid-template-columns: 1fr; } }
+
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Data File Plotter with Scan Summary</h1>
+        <h1 style="text-align: center;">Taipan Data Plotter with Scan Summary</h1>
         
         <div class="input-section">
             <div id="message-area"></div>
@@ -468,11 +748,20 @@
             </div>
            
             <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
-                <button onclick="processData()">Select and Process Data Files</button>
-                <button onclick="openCalibrPopup()" style="background:#1976D2;">Calibrate with Six Ni Peaks</button>
+                <button onclick="processData()">Select Data Files</button>
+                <button onclick="openCalibrPopup()" style="background:#1976D2;">Ni Calibrate</button>
+                <button onclick="openGroupLinePlot()" style="background:#d21951;">Group Line Plot</button>
+                <button onclick="openIntensityMap()" style="background:#d29819;">Intensity Map</button>
+                <button onclick="openCombineSweepScans()" style="background:#7f19d2;">Plot Sweep Scans</button>
+                <button onclick="openHe3Popup()" style="background:#19a2d2;">He-3 Polarization</button>
+                <button onclick="window.location.href='taipan_validator.html'" style="background:#d219d2;">Taipan validator</button>
             </div>
+            <h5 style="text-align: center;">Help: double click the margin area of the plots can open an fitting window.</h5>
         </div>
+
+
         
+
         <div id="file-info-section" style="display: none;" class="file-info">
             <div class="file-info-title">Selected Files:</div>
             <div id="file-list" class="file-list"></div>
@@ -518,6 +807,7 @@
                     <select id="gaussian-count" onchange="updateInitParamFields()">
                         <option value="1">1 Gaussian</option>
                         <option value="2">2 Gaussians</option>
+                        <option value="3">3 Gaussians</option>
                     </select>
                     <button class="fit-button" onclick="performGaussianFit()">Fit Data</button>
                 </div>
@@ -563,6 +853,294 @@
 
                 <div id="calibr-fit-table-area"></div>
                 <div id="calibr-result-area"></div>
+            </div>
+        </div>
+
+
+        <!-- Group Line Plot popup -->
+        <div id="glp-popup" class="popup-overlay" style="display:none;">
+            <div class="popup-window-wide">
+                <div class="popup-header">
+                    <h2>Group Line Plot</h2>
+                    <button class="popup-close" onclick="closeGlpPopup()">Close</button>
+                </div>
+                <p style="font-size:13px;color:#555;margin-bottom:10px;">
+                    Select the datasets to overlay. Each scan is shown as one line; the scan description is used as the legend label.
+                </p>
+                <div id="glp-file-list" class="glp-file-list"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+                    <button class="fit-button" onclick="plotGroupLines()" style="width:auto;padding:8px 18px;font-size:14px;">Plot</button>
+                    <button class="fit-button" onclick="glpSelectAll()" style="width:auto;padding:8px 18px;font-size:14px;background:#757575;">Select All</button>
+                    <button class="fit-button" onclick="glpClearAll()" style="width:auto;padding:8px 18px;font-size:14px;background:#757575;">Clear All</button>
+                </div>
+                <div id="glp-plot-area" class="glp-plot-area"></div>
+            </div>
+        </div>
+
+        <!-- Intensity Map popup -->
+        <div id="imap-popup" class="popup-overlay" style="display:none;">
+            <div class="popup-window-wide">
+                <div class="popup-header">
+                    <h2>Intensity Map</h2>
+                    <button class="popup-close" onclick="closeImapPopup()">Close</button>
+                </div>
+                <p style="font-size:13px;color:#555;margin-bottom:10px;">
+                    Select a group of similar scans (all scanning the same virtual motor at different fixed positions of one other virtual motor).
+                    The program will validate the selection and build a 2D intensity contour map.
+                </p>
+                <div id="imap-file-list" class="imap-file-list"></div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
+                    <button class="fit-button" onclick="validateAndPlotImap()" style="width:auto;padding:8px 18px;font-size:14px;">Validate &amp; Plot</button>
+                    <button class="fit-button" onclick="imapSelectAll()" style="width:auto;padding:8px 18px;font-size:14px;background:#757575;">Select All</button>
+                    <button class="fit-button" onclick="imapClearAll()" style="width:auto;padding:8px 18px;font-size:14px;background:#757575;">Clear All</button>
+                </div>
+                <div id="imap-validation-msg"></div>
+
+                <!-- REPLACE WITH: -->
+                <div class="imap-controls" id="imap-controls" style="display:none;">
+                    <!-- Row 1: Intensity scale, colorscale -->
+                    <span>Intensity scale:</span>
+                    <label>Min <input type="number" id="imap-zmin" step="any" placeholder="auto"></label>
+                    <label>Max <input type="number" id="imap-zmax" step="any" placeholder="auto"></label>
+                    <button class="fit-button" onclick="applyImapScale()" style="width:auto;padding:6px 14px;font-size:13px;">Apply</button>
+                    <label style="margin-left:10px;">
+                        Colorscale:
+                        <select id="imap-colorscale" onchange="applyImapScale()" style="padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:13px;">
+                            <option value="Viridis">Viridis</option>
+                            <option value="Plasma">Plasma</option>
+                            <option value="Hot">Hot</option>
+                            <option value="Jet">Jet</option>
+                            <option value="RdBu">RdBu</option>
+                            <option value="Greys">Greys</option>
+                        </select>
+                    </label>
+
+                    <!-- Contour lines toggle -->
+                    <label style="margin-left:10px;font-weight:normal;display:flex;align-items:center;gap:5px;">
+                        <input type="checkbox" id="imap-show-contours" checked onchange="applyImapScale()"
+                               style="width:15px;height:15px;">
+                        Show contour lines
+                    </label>
+
+                    <!-- Save CSV button -->
+                    <button class="fit-button" onclick="imapSaveCsv()"
+                            style="width:auto;padding:6px 14px;font-size:13px;background:#388e3c;margin-left:10px;">
+                        Save CSV
+                    </button>
+
+                    <!-- Row 2: Normalization -->
+                    <div style="width:100%;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px;">
+                        <label style="font-weight:normal;display:flex;align-items:center;gap:5px;">
+                            <input type="checkbox" id="imap-normalize" onchange="imapOnNormalizeChange()"
+                                   style="width:15px;height:15px;">
+                            Normalize by monitor
+                        </label>
+                        <label style="font-weight:normal;display:flex;align-items:center;gap:5px;">
+                            Factor:
+                            <input type="number" id="imap-norm-factor" step="any" value="1"
+                                   style="width:90px;padding:4px 6px;border:1px solid #ccc;border-radius:3px;font-size:13px;"
+                                   onchange="applyImapScale()" title="Normalised intensity = detector / monitor × factor">
+                        </label>
+                        <span id="imap-norm-hint" style="font-size:12px;color:#888;"></span>
+                    </div>
+
+                    <!-- Row 3: Plot width slider -->
+                    <div class="imap-size-row" style="width:100%;margin-top:4px;">
+                        <label>Plot width:</label>
+                        <input type="range" id="imap-width-slider" min="300" max="1100" step="10" value="700"
+                               oninput="imapResizePlot(this.value)">
+                        <span id="imap-width-label">700 px</span>
+                    </div>
+                </div>
+
+                <div id="imap-plot-area" class="imap-plot-area"></div>
+            </div>
+        </div>
+
+
+
+        <!-- Combine Sweep Scans popup -->
+        <div id="css-popup" class="popup-overlay" style="display:none;">
+            <div class="css-popup-window">
+                <div class="popup-header">
+                    <h2>Combine Sweep Scans</h2>
+                    <button class="popup-close" onclick="closeCssPopup()">Close</button>
+                </div>
+                <p style="font-size:13px;color:#555;margin:0 0 10px;">
+                    Combine rows from multiple scans, sort by a chosen column, rebin, and plot detector vs that column.
+                    Scan numbers are matched to loaded files by filename (e.g. <code>scan0101.dat</code>).
+                </p>
+
+                <div class="css-layout">
+                    <!-- LEFT: controls -->
+                    <div class="css-left-panel">
+
+                        <!-- Scan ranges -->
+                        <div>
+                            <div class="css-section-title">Scan Number Ranges</div>
+                            <div id="css-ranges-container"></div>
+                            <button class="css-add-btn" onclick="cssAddRange()">+ Add Range</button>
+                        </div>
+
+                        <!-- Column selection -->
+                        <div>
+                            <div class="css-section-title">Extra Columns to Read</div>
+                            <p style="font-size:12px;color:#777;margin:0 0 6px;">
+                                <code>detector</code> and <code>monitor</code> are always included.
+                                Click columns from the loaded files to add them:
+                            </p>
+                            <div id="css-available-cols" class="css-available-cols"></div>
+                            <div style="margin-top:8px;font-size:12px;color:#555;">Selected extra columns:</div>
+                            <div id="css-selected-col-tags" class="css-col-tags"></div>
+                        </div>
+
+                        <!-- Sort and rebin -->
+                        <div>
+                            <div class="css-section-title">Sort &amp; Rebin</div>
+                            <div class="css-form-row">
+                                <label>Sort by</label>
+                                <select id="css-sort-col"></select>
+                            </div>
+                            <div class="css-form-row" style="flex-wrap:wrap;">
+                                <label>Rebin (avg)</label>
+                                <input type="number" id="css-rebin" value="1" min="1" step="1" style="flex:1;">
+                                <span style="font-size:12px;color:#777;width:100%;margin-top:2px;padding-left:108px;">points per bin (1 = no binning)</span>
+                            </div>
+                            <div class="css-form-row">
+                                <label>Y axis</label>
+                                <select id="css-y-col">
+                                    <option value="detector">detector (raw)</option>
+                                    <option value="det_mon">detector / monitor</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Actions -->
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="fit-button" onclick="cssProcess()"
+                                style="width:auto;padding:8px 18px;font-size:14px;">Process &amp; Plot</button>
+                            <button class="fit-button" onclick="cssSaveData()"
+                                id="css-save-btn"
+                                style="width:auto;padding:8px 18px;font-size:14px;background:#388e3c;display:none;">Save Data</button>
+                        </div>
+                        <div id="css-msg"></div>
+
+                    </div>
+
+                    <!-- RIGHT: plot + data preview -->
+                    <div class="css-right-panel">
+                        <div id="css-plot-area" class="css-plot-area"></div>
+                        <details id="css-data-preview" style="display:none;">
+                            <summary style="cursor:pointer;font-size:13px;font-weight:bold;color:#1565c0;padding:4px 0;">
+                                Show combined data table
+                            </summary>
+                            <div id="css-data-table" style="max-height:220px;overflow:auto;margin-top:6px;font-size:12px;"></div>
+                        </details>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- He-3 Polarization Analysis popup -->
+        <div id="he3-popup" class="popup-overlay" style="display:none;">
+            <div class="he3-popup-window">
+                <div class="popup-header">
+                    <h2>He-3 Polarization Analysis</h2>
+                    <button class="popup-close" onclick="closeHe3Popup()">Close</button>
+                </div>
+                <p style="font-size:13px;color:#555;margin:0 0 12px;">
+                    Workflow: complete Steps 1 &amp; 2 (cell decay fits) before running Steps 3 or 4 (intensity corrections).
+                </p>
+
+                <div class="he3-two-col">
+
+                    <!-- ── STEP 1: Polarizer ── -->
+                    <div class="he3-step-box">
+                        <div class="he3-step-title">Step 1 — Polarizer cell decay fit</div>
+                        <p style="font-size:12px;color:#777;margin:0 0 6px;">
+                            Select the repeated nuclear-peak scans (polarizer cell only) ordered from cell installation to full depolarisation,
+                            then select the <em>no-cell</em> reference scan separately.
+                        </p>
+                        <div style="font-size:12px;font-weight:bold;color:#555;margin-bottom:3px;">Decay scans (check in time order; last scan = fully depolarised):</div>
+                        <div id="he3-pol-decay-list" class="he3-file-list"></div>
+                        <div style="font-size:12px;font-weight:bold;color:#555;margin-bottom:3px;">No-cell reference scan:</div>
+                        <div id="he3-pol-empty-list" class="he3-file-list"></div>
+                        <button class="fit-button" onclick="he3FitCell('pol')"
+                                style="width:auto;padding:7px 16px;font-size:13px;margin-top:6px;">
+                            Fit Polarizer Decay
+                        </button>
+                        <div id="he3-pol-msg"></div>
+                        <!-- Editable time / intensity table -->
+                        <div id="he3-pol-table-area"></div>
+                        <!-- Decay plot -->
+                        <div id="he3-pol-plot" class="he3-plot-area" style="display:none;"></div>
+                        <!-- Results -->
+                        <div id="he3-pol-result"></div>
+                    </div>
+
+                    <!-- ── STEP 2: Analyser ── -->
+                    <div class="he3-step-box">
+                        <div class="he3-step-title">Step 2 — Analyser cell decay fit</div>
+                        <p style="font-size:12px;color:#777;margin:0 0 6px;">
+                            Same procedure as Step 1 but for the analyser cell.
+                        </p>
+                        <div style="font-size:12px;font-weight:bold;color:#555;margin-bottom:3px;">Decay scans (check in time order; last scan = fully depolarised):</div>
+                        <div id="he3-ana-decay-list" class="he3-file-list"></div>
+                        <div style="font-size:12px;font-weight:bold;color:#555;margin-bottom:3px;">No-cell reference scan:</div>
+                        <div id="he3-ana-empty-list" class="he3-file-list"></div>
+                        <button class="fit-button" onclick="he3FitCell('ana')"
+                                style="width:auto;padding:7px 16px;font-size:13px;margin-top:6px;">
+                            Fit Analyser Decay
+                        </button>
+                        <div id="he3-ana-msg"></div>
+                        <div id="he3-ana-table-area"></div>
+                        <div id="he3-ana-plot" class="he3-plot-area" style="display:none;"></div>
+                        <div id="he3-ana-result"></div>
+                    </div>
+                </div>
+
+                <!-- ── STEP 3: Nuclear peaks correction ── -->
+                <div class="he3-step-box">
+                    <div class="he3-step-title">Step 3 — Nuclear peak intensity correction</div>
+                    <p style="font-size:12px;color:#777;margin:0 0 6px;">
+                        Requires Steps 1 &amp; 2. Select nuclear-peak scans to correct.
+                        Each scan's timestamp is computed relative to t=0 of each cell (the first decay scan selected in Steps 1 &amp; 2).
+                    </p>
+                    <div id="he3-nuc-file-list" class="he3-file-list"></div>
+                    <button class="fit-button" onclick="he3CorrectPeaks('nuclear')"
+                            style="width:auto;padding:7px 16px;font-size:13px;margin-top:6px;">
+                        Correct Nuclear Peaks
+                    </button>
+                    <div id="he3-nuc-msg"></div>
+                    <div id="he3-nuc-result"></div>
+                </div>
+
+                <!-- ── STEP 4: Magnetic peaks correction ── -->
+                <div class="he3-step-box">
+                    <div class="he3-step-title">Step 4 — Magnetic peak intensity correction</div>
+                    <p style="font-size:12px;color:#777;margin:0 0 6px;">
+                        Requires Steps 1 &amp; 2. Select magnetic-peak scans to correct.
+                        Optionally pair each magnetic scan with a simultaneous nuclear scan for the mixed-mode correction.
+                    </p>
+                    <div id="he3-mag-file-list" class="he3-file-list"></div>
+                    <div class="he3-form-row" style="margin-top:6px;">
+                        <label style="font-weight:normal;display:flex;align-items:center;gap:5px;">
+                            <input type="checkbox" id="he3-mag-mixed" style="width:15px;height:15px;">
+                            Use mixed-mode correction (pair each magnetic scan with a nuclear scan)
+                        </label>
+                    </div>
+                    <div id="he3-mag-nuclear-list-area" style="display:none;">
+                        <div style="font-size:12px;font-weight:bold;color:#555;margin:6px 0 3px;">Paired nuclear scans (same order as magnetic):</div>
+                        <div id="he3-mag-nuc-file-list" class="he3-file-list"></div>
+                    </div>
+                    <button class="fit-button" onclick="he3CorrectPeaks('magnetic')"
+                            style="width:auto;padding:7px 16px;font-size:13px;margin-top:6px;">
+                        Correct Magnetic Peaks
+                    </button>
+                    <div id="he3-mag-msg"></div>
+                    <div id="he3-mag-result"></div>
+                </div>
+
             </div>
         </div>
 
@@ -649,7 +1227,35 @@
                 }
             }
             
-            return { columnNames, data, detectorColumnIndex, scanTitle };
+            // Extract start_time from header (e.g. "# start_time = 2026-04-02 12:02:43")
+            let startTime = null;
+            let endTime   = null;
+            let midTime   = null;
+
+            for (const h of headerLines) {
+                if (typeof h !== 'string') continue;
+
+                const line = h.replace(/\r/g, '');
+                const m = line.match(/#?\s*start_time\s*=\s*(.+)/);
+                const n = line.match(/#?\s*end_time\s*=\s*(.+)/);
+
+                if (m) {
+                    startTime = m[1].trim();
+                }
+                
+                if (n) {
+                    endTime = n[1].trim();
+                    break;
+                }
+            }
+            if (startTime && endTime) {
+                const tempStart = new Date(startTime);
+                const tempEnd   = new Date(endTime);
+                if (!isNaN(tempStart) && !isNaN(tempEnd)) {
+                    midTime = new Date((tempStart.getTime() + tempEnd.getTime()) / 2).toISOString();
+                }
+            }
+            return { columnNames, data, detectorColumnIndex, scanTitle, midTime };
         }
         
         // Function to get column index safely
@@ -912,7 +1518,8 @@
         
         // Gaussian fitting functions
         function gaussian(x, a, mu, sigma) {
-            return a * Math.exp(-0.5 * Math.pow((x - mu) / sigma, 2));
+            const G = a / (sigma * Math.sqrt(Math.PI / (4 * Math.log(2)))) * Math.exp(-4 * Math.log(2) * Math.pow(x - mu, 2) / Math.pow(sigma, 2));
+            return G;
         }
         function gaussian_bg(x, a, mu, sigma, bg) {
             return gaussian(x, a, mu, sigma) + bg;
@@ -923,6 +1530,10 @@
         function doubleGaussian_bg(x, a1, mu1, sigma1, a2, mu2, sigma2, bg) {
             return gaussian(x, a1, mu1, sigma1) + gaussian(x, a2, mu2, sigma2) + bg;
         }
+        function tripleGaussian_bg(x, a1, mu1, sigma1, a2, mu2, sigma2,  a3, mu3, sigma3, bg) {
+            return gaussian(x, a1, mu1, sigma1) + gaussian(x, a2, mu2, sigma2) + gaussian(x, a3, mu3, sigma3) + bg;
+        }
+
 
         // Levenberg-Marquardt algorithm for non-linear fitting
         function levenbergMarquardt(xData, yData, func, initialParams, maxIterations = 1000, tolerance = 1e-8) {
@@ -964,6 +1575,7 @@
                 if (Math.abs(previousError - currentError) < tolerance) {
                     break;
                 }
+                
                 
                 // Compute JtJ (Jacobian transpose times Jacobian)
                 const JtJ = [];
@@ -1071,7 +1683,7 @@
                     { name: 'Sigma',     value: estimatedSigma },
                     { name: 'Background',value: bg }
                 ];
-            } else {
+           } else if (gaussianCount === 2) {
                 const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 6;
                 return [
                     { name: 'Amplitude 1', value: maxY * 0.6 },
@@ -1080,6 +1692,20 @@
                     { name: 'Amplitude 2', value: maxY * 0.4 },
                     { name: 'Center 2',    value: centerX + estimatedSigma },
                     { name: 'Sigma 2',     value: estimatedSigma },
+                    { name: 'Background',  value: bg }
+                ];
+            } else {
+                const estimatedSigma = (Math.max(...xData) - Math.min(...xData)) / 8;
+                return [
+                    { name: 'Amplitude 1', value: maxY * 0.5 },
+                    { name: 'Center 1',    value: centerX - estimatedSigma * 2 },
+                    { name: 'Sigma 1',     value: estimatedSigma },
+                    { name: 'Amplitude 2', value: maxY * 0.8 },
+                    { name: 'Center 2',    value: centerX },
+                    { name: 'Sigma 2',     value: estimatedSigma },
+                    { name: 'Amplitude 3', value: maxY * 0.5 },
+                    { name: 'Center 3',    value: centerX + estimatedSigma * 2 },
+                    { name: 'Sigma 3',     value: estimatedSigma },
                     { name: 'Background',  value: bg }
                 ];
             }
@@ -1213,7 +1839,7 @@
                     const freeParams = levenbergMarquardt(xData, yData, wrappedFunc, freeInit);
                     fittedParams = makeFullParams(freeParams);
                     fitFunction = (x) => gaussian_bg(x, ...fittedParams);
-                } else {
+                } else if (gaussianCount === 2) {
                     paramNames = ['Amplitude 1', 'Center 1', 'Sigma 1', 'Amplitude 2', 'Center 2', 'Sigma 2', 'Background'];
                     const { values: initVals, fixed } = getInitParamsFromUI(paramNames.length);
                     const freeIndices = paramNames.map((_, i) => i).filter(i => !fixed[i]);
@@ -1227,6 +1853,20 @@
                     const freeParams = levenbergMarquardt(xData, yData, wrappedFunc, freeInit);
                     fittedParams = makeFullParams(freeParams);
                     fitFunction = (x) => doubleGaussian_bg(x, ...fittedParams);
+                } else {
+                    paramNames = ['Amplitude 1', 'Center 1', 'Sigma 1', 'Amplitude 2', 'Center 2', 'Sigma 2', 'Amplitude 3', 'Center 3', 'Sigma 3', 'Background'];
+                    const { values: initVals, fixed } = getInitParamsFromUI(paramNames.length);
+                    const freeIndices = paramNames.map((_, i) => i).filter(i => !fixed[i]);
+                    const makeFullParams = (freeVals) => {
+                        const full = [...initVals];
+                        freeIndices.forEach((idx, j) => { full[idx] = freeVals[j]; });
+                        return full;
+                    };
+                    const freeInit = freeIndices.map(i => initVals[i]);
+                    const wrappedFunc = (x, ...freeVals) => tripleGaussian_bg(x, ...makeFullParams(freeVals));
+                    const freeParams = levenbergMarquardt(xData, yData, wrappedFunc, freeInit);
+                    fittedParams = makeFullParams(freeParams);
+                    fitFunction = (x) => tripleGaussian_bg(x, ...fittedParams);
                 }
                 
                 // Generate fitted curve
@@ -1282,7 +1922,8 @@
             }
         }
         
-        // Function to display fit results
+
+        // Function to display fit results and update init param fields with fitted values
         function displayFitResults(params, paramNames) {
             let resultsHTML = '';
             
@@ -1295,7 +1936,7 @@
                 `;
             }
             
-            // Calculate R-squared
+            // Calculate R-squared using the correct full model function
             const xData = currentFitData.x;
             const yData = currentFitData.y;
             const gaussianCount = parseInt(document.getElementById('gaussian-count').value);
@@ -1307,9 +1948,11 @@
             for (let i = 0; i < xData.length; i++) {
                 let yPred;
                 if (gaussianCount === 1) {
-                    yPred = gaussian(xData[i], ...params);
+                    yPred = gaussian_bg(xData[i], ...params);
+                } else if (gaussianCount === 2) {
+                    yPred = doubleGaussian_bg(xData[i], ...params);
                 } else {
-                    yPred = doubleGaussian(xData[i], ...params);
+                    yPred = tripleGaussian_bg(xData[i], ...params);
                 }
                 ssRes += Math.pow(yData[i] - yPred, 2);
             }
@@ -1325,6 +1968,18 @@
             
             document.getElementById('fit-parameters').innerHTML = resultsHTML;
             document.getElementById('fit-results').style.display = 'block';
+
+            // Update the initial parameter panel with fitted values,
+            // preserving the current fix-checkbox states
+            const container = document.getElementById('init-param-fields');
+            paramNames.forEach((name, i) => {
+                const input = document.getElementById(`init-param-${i}`);
+                const fixCb = document.getElementById(`fix-param-${i}`);
+                if (input) {
+                    input.value = parseFloat(params[i].toPrecision(7));
+                }
+                // preserve fixCb state — user keeps their fix/unfix choices
+            });
         }
         
         // Main function to process and optionally plot the data
@@ -1371,7 +2026,7 @@
                         
                         try {
                             const content = await readFileContent(file);
-                            const { columnNames, data, detectorColumnIndex, scanTitle } = parseDataWithHeaders(content);
+                            const { columnNames, data, detectorColumnIndex, scanTitle, midTime } = parseDataWithHeaders(content);
                             
                             // Create scan summary
                             const summary = createScanSummary(columnNames, data, i, file.name);
@@ -1428,7 +2083,8 @@
                                 if (idx !== -1) colIndices.push(idx);
                             });
                             
-                            fileDataStore[i] = { columnNames, data, colIndices };
+                            //fileDataStore[i] = { columnNames, data, colIndices };
+                            fileDataStore[i] = { columnNames, data, colIndices, midTime };
                             
                             textContent += `<div class="file-section" id="file-section-${i}">`;
                             textContent += `<h3>${file.name}</h3>`;
@@ -1461,7 +2117,12 @@
                     window.fileDataStore = fileDataStore; // Make data accessible globally for toggle function
                     window.fileSummaries = summaries;     // Store summaries globally for calibration
                     window.fileNames = files.map(f => f.name); // Store file names globally
+
+
+                    // t=0 for He-3 is determined when the user selects decay scans in the dialog,
+                    // NOT from the globally loaded files. No global he3_t0 is set here.
                     
+
                     // Update the summary table
                     updateSummaryTable(summaries);
                     
@@ -1834,6 +2495,1352 @@
                     <div class="calibr-result-row"><span class="cr-name">wavelength:</span><span class="cr-val">${wavelen.toFixed(8)} Å</span></div>
                 </div>
                 ${histHTML}`;
+        }
+
+
+        // ═══════════════════════════════════════════════════════════════
+        //  GROUP LINE PLOT
+        // ═══════════════════════════════════════════════════════════════
+
+        function openGroupLinePlot() {
+            if (!window.fileDataStore || window.fileDataStore.length === 0) {
+                alert('Please load data files first.');
+                return;
+            }
+            buildGlpFileList();
+            document.getElementById('glp-plot-area').innerHTML = '';
+            document.getElementById('glp-popup').style.display = 'flex';
+        }
+
+        function closeGlpPopup() {
+            document.getElementById('glp-popup').style.display = 'none';
+        }
+
+        function buildGlpFileList() {
+            const container = document.getElementById('glp-file-list');
+            container.innerHTML = '';
+            (window.fileNames || []).forEach((name, i) => {
+                const summary = (window.fileSummaries || [])[i];
+                const desc = summary ? summary.scanDescription : name;
+                const row = document.createElement('div');
+                row.className = 'glp-file-row';
+                row.innerHTML = `
+                    <input type="checkbox" id="glp-cb-${i}" checked>
+                    <label for="glp-cb-${i}" style="font-weight:normal;cursor:pointer;">
+                        <strong>${name}</strong> — ${desc}
+                    </label>`;
+                container.appendChild(row);
+            });
+        }
+
+        function glpSelectAll() {
+            (window.fileNames || []).forEach((_, i) => {
+                const cb = document.getElementById(`glp-cb-${i}`);
+                if (cb) cb.checked = true;
+            });
+        }
+        function glpClearAll() {
+            (window.fileNames || []).forEach((_, i) => {
+                const cb = document.getElementById(`glp-cb-${i}`);
+                if (cb) cb.checked = false;
+            });
+        }
+
+        function plotGroupLines() {
+            const selected = (window.fileNames || [])
+                .map((_, i) => i)
+                .filter(i => document.getElementById(`glp-cb-${i}`)?.checked);
+
+            if (selected.length === 0) {
+                alert('Select at least one dataset.');
+                return;
+            }
+
+            const traces = [];
+            const xLabels = [];   // collect all distinct X axis labels
+            const yLabel = 'Detector';
+
+            selected.forEach(i => {
+                const store   = window.fileDataStore[i];
+                const summary = window.fileSummaries[i];
+                const name    = window.fileNames[i];
+                if (!store || !summary) return;
+
+                const xIdx  = summary.scanningMotorIndex;
+                const detIdx = store.columnNames.findIndex(n => n.toLowerCase() === 'detector');
+                if (xIdx < 0 || detIdx < 0) return;
+
+                const xVals = store.data.map(r => r[xIdx]);
+                const yVals = store.data.map(r => r[detIdx]);
+                const colLabel = store.columnNames[xIdx] || 'Motor';
+                if (!xLabels.includes(colLabel)) xLabels.push(colLabel);
+
+                // Use scan description as legend, truncated
+                const legendLabel = summary.scanDescription.length > 60
+                    ? summary.scanDescription.slice(0, 60) + '…'
+                    : summary.scanDescription;
+
+                traces.push({
+                    x: xVals,
+                    y: yVals,
+                    mode: 'lines+markers',
+                    type: 'scatter',
+                    name: legendLabel,
+                    marker: { size: 5 }
+                });
+            });
+
+            // Join all distinct X labels so mixed scans are clearly indicated
+            const xLabel = xLabels.join(', ') || 'Motor';
+
+            const layout = {
+                xaxis: {
+                    title: xLabel,
+                    showgrid: true, gridcolor: '#e6e6e6',
+                    showline: true, linecolor: '#444', mirror: 'ticks',  // top border + axis always visible
+                    zeroline: false
+                },
+                yaxis: {
+                    title: yLabel,
+                    showgrid: true, gridcolor: '#e6e6e6',
+                    showline: true, linecolor: '#444', mirror: 'ticks',  // right border + axis always visible
+                    zeroline: false
+                },
+                legend: { orientation: 'v', x: 1.01, y: 1, xanchor: 'left', font: { size: 11 } },
+                margin: { l: 55, r: 250, t: 30, b: 55 },
+                hovermode: 'closest',
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('glp-plot-area', traces, layout, { responsive: true });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  INTENSITY MAP
+        // ═══════════════════════════════════════════════════════════════
+
+        // Stores the current imap dataset so we can re-apply scale without re-parsing
+        let _imapData = null;
+
+        function openIntensityMap() {
+            if (!window.fileDataStore || window.fileDataStore.length === 0) {
+                alert('Please load data files first.');
+                return;
+            }
+            buildImapFileList();
+            document.getElementById('imap-validation-msg').innerHTML = '';
+            document.getElementById('imap-controls').style.display = 'none';
+            document.getElementById('imap-plot-area').innerHTML = '';
+            _imapData = null;
+            document.getElementById('imap-popup').style.display = 'flex';
+        }
+
+        function closeImapPopup() {
+            document.getElementById('imap-popup').style.display = 'none';
+        }
+
+        function buildImapFileList() {
+            const container = document.getElementById('imap-file-list');
+            container.innerHTML = '';
+            (window.fileNames || []).forEach((name, i) => {
+                const summary = (window.fileSummaries || [])[i];
+                const desc = summary ? summary.scanDescription : name;
+                const row = document.createElement('div');
+                row.className = 'imap-file-row';
+                row.innerHTML = `
+                    <input type="checkbox" id="imap-cb-${i}">
+                    <label for="imap-cb-${i}" style="font-weight:normal;cursor:pointer;">
+                        <strong>${name}</strong> — ${desc}
+                    </label>`;
+                container.appendChild(row);
+            });
+        }
+
+        function imapSelectAll() {
+            (window.fileNames || []).forEach((_, i) => {
+                const cb = document.getElementById(`imap-cb-${i}`);
+                if (cb) cb.checked = true;
+            });
+        }
+        function imapClearAll() {
+            (window.fileNames || []).forEach((_, i) => {
+                const cb = document.getElementById(`imap-cb-${i}`);
+                if (cb) cb.checked = false;
+            });
+        }
+
+        // Virtual motors in priority order for axis assignment
+        const VIRTUAL_MOTOR_ORDER = ['qh', 'qk', 'ql', 'en'];
+
+        // Get the mean value of a column across all data rows
+        function colMean(data, colIdx) {
+            if (colIdx < 0) return null;
+            const vals = data.map(r => r[colIdx]).filter(v => typeof v === 'number');
+            return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+        }
+
+        function validateAndPlotImap() {
+            const msgEl = document.getElementById('imap-validation-msg');
+            msgEl.innerHTML = '';
+            document.getElementById('imap-controls').style.display = 'none';
+            document.getElementById('imap-plot-area').innerHTML = '';
+            _imapData = null;
+
+            const selected = (window.fileNames || [])
+                .map((_, i) => i)
+                .filter(i => document.getElementById(`imap-cb-${i}`)?.checked);
+
+            if (selected.length < 2) {
+                msgEl.innerHTML = `<div class="imap-validation-msg err">Select at least 2 datasets to build an intensity map.</div>`;
+                return;
+            }
+
+            // ── Step 1: check each scan uses a virtual motor ──────────────
+            const scanInfos = [];
+            for (const i of selected) {
+                const store   = window.fileDataStore[i];
+                const summary = window.fileSummaries[i];
+                const name    = window.fileNames[i];
+                if (!store || !summary) {
+                    msgEl.innerHTML = `<div class="imap-validation-msg err">Missing data for file index ${i}.</div>`;
+                    return;
+                }
+
+                const scanMotor = summary.scanningMotor.toLowerCase();
+                if (!VIRTUAL_MOTOR_ORDER.includes(scanMotor)) {
+                    msgEl.innerHTML = `<div class="imap-validation-msg err">
+                        File <strong>${name}</strong> scans a real motor (<em>${summary.scanningMotor}</em>).
+                        Intensity map only supports scans of qh, qk, ql, or en.
+                    </div>`;
+                    return;
+                }
+
+                // Get mean values of each virtual motor (the "fixed" ones)
+                const fixedVals = {};
+                VIRTUAL_MOTOR_ORDER.forEach(m => {
+                    let idx = store.columnNames.findIndex(n => n.toLowerCase() === m);
+                    if (idx < 0) {
+                        // try short aliases
+                        const alias = { qh: 'h', qk: 'k', ql: 'l', en: 'e' }[m];
+                        idx = store.columnNames.findIndex(n => n.toLowerCase() === alias);
+                    }
+                    fixedVals[m] = (idx >= 0) ? colMean(store.data, idx) : null;
+                });
+
+
+                const detIdx = store.columnNames.findIndex(n => n.toLowerCase() === 'detector');
+                if (detIdx < 0) {
+                    msgEl.innerHTML = `<div class="imap-validation-msg err">No detector column in <strong>${name}</strong>.</div>`;
+                    return;
+                }
+                const monIdx = store.columnNames.findIndex(n => n.toLowerCase() === 'monitor');
+
+                scanInfos.push({ i, name, store, summary, scanMotor, fixedVals, detIdx, monIdx,
+                                 xIdx: summary.scanningMotorIndex });
+            }
+
+            // ── Step 2: all scans must share the same scan motor ──────────
+            const scanMotors = [...new Set(scanInfos.map(s => s.scanMotor))];
+            if (scanMotors.length > 1) {
+                msgEl.innerHTML = `<div class="imap-validation-msg err">
+                    Selected scans use different scan motors: <em>${scanMotors.join(', ')}</em>.
+                    All scans must scan the same motor (e.g., all scan en, or all scan ql).
+                </div>`;
+                return;
+            }
+            const scanMotor = scanMotors[0];   // e.g. 'en'
+
+            // ── Step 3: find which other virtual motor varies across scans ─
+            // For each motor that is NOT the scan motor, collect its mean value per scan
+            const otherMotors = VIRTUAL_MOTOR_ORDER.filter(m => m !== scanMotor);
+            let varyingMotor = null;
+            let varyingValues = [];
+
+            for (const m of otherMotors) {
+                const vals = scanInfos.map(s => s.fixedVals[m]);
+                const defined = vals.filter(v => v !== null);
+                if (defined.length < 2) continue;
+                const range = Math.max(...defined) - Math.min(...defined);
+                if (range > 0.001) {           // this motor actually changes between scans
+                    varyingMotor = m;
+                    varyingValues = vals;
+                    break;                      // take the first one that varies (qh < qk < ql < en order)
+                }
+            }
+
+            if (!varyingMotor) {
+                msgEl.innerHTML = `<div class="imap-validation-msg err">
+                    Could not find a motor that varies between scans.
+                    Ensure the selected scans differ in exactly one of qh, qk, ql, or en.
+                </div>`;
+                return;
+            }
+
+            // ── Step 4: confirm truly similar scans (same fixed motors) ───
+            // The motors that are neither the scan motor nor the varying motor
+            // should be approximately constant across all scans.
+            const fixedMotors = otherMotors.filter(m => m !== varyingMotor);
+            const warnings = [];
+            for (const m of fixedMotors) {
+                const vals = scanInfos.map(s => s.fixedVals[m]).filter(v => v !== null);
+                if (vals.length < 2) continue;
+                const range = Math.max(...vals) - Math.min(...vals);
+                if (range > 0.05) {
+                    warnings.push(`Motor <strong>${m}</strong> varies by ${range.toFixed(3)} across scans (expected fixed).`);
+                }
+            }
+
+            // ── Step 5: assign X and Y axes by VIRTUAL_MOTOR_ORDER priority ─
+            // scanMotor and varyingMotor are our two axes.
+            // The one that comes first in [qh,qk,ql,en] → X axis.
+            const axis1Order = VIRTUAL_MOTOR_ORDER.indexOf(scanMotor);
+            const axis2Order = VIRTUAL_MOTOR_ORDER.indexOf(varyingMotor);
+            const xMotor = axis1Order < axis2Order ? scanMotor   : varyingMotor;
+            const yMotor = axis1Order < axis2Order ? varyingMotor : scanMotor;
+
+            // ── Step 6: build the 2D grid ─────────────────────────────────
+            // Sort scans by their varyingMotor value
+            const sortedScans = scanInfos.slice().sort((a, b) =>
+                (a.fixedVals[varyingMotor] ?? 0) - (b.fixedVals[varyingMotor] ?? 0)
+            );
+
+            // For contour/heatmap we need arrays of (x, y, z) triples
+            // For contour we need arrays of (x, y, z) triples.
+            // Also store raw monitor values separately so normalisation can be toggled.
+            const allX = [], allY = [], allZ_det = [], allZ_mon = [];
+            const hasMonitor = scanInfos.some(sc => sc.monIdx >= 0);
+
+            sortedScans.forEach(sc => {
+                const fixedVal = sc.fixedVals[varyingMotor];
+                sc.store.data.forEach(row => {
+                    const xVal = row[sc.xIdx];
+                    const det  = row[sc.detIdx];
+                    if (typeof xVal !== 'number' || typeof det !== 'number') return;
+
+                    if (xMotor === scanMotor) {
+                        allX.push(xVal);
+                        allY.push(fixedVal);
+                    } else {
+                        allX.push(fixedVal);
+                        allY.push(xVal);
+                    }
+                    allZ_det.push(det);
+
+                    const mon = (sc.monIdx >= 0 && typeof row[sc.monIdx] === 'number')
+                                ? row[sc.monIdx] : null;
+                    allZ_mon.push(mon);
+                });
+            });
+
+
+            // Determine the first-scan monitor value (mean monitor of the first sorted scan)
+            const firstScan = sortedScans[0];
+            let firstMonitor = null;
+            if (firstScan.monIdx >= 0) {
+                const monVals = firstScan.store.data
+                    .map(r => r[firstScan.monIdx])
+                    .filter(v => typeof v === 'number' && v > 0);
+                firstMonitor = monVals.length
+                    ? monVals.reduce((s, v) => s + v, 0) / monVals.length
+                    : null;
+            }
+
+            // Store everything needed for re-rendering
+            _imapData = { allX, allY, allZ_det, allZ_mon, hasMonitor,
+                          xMotor, yMotor, scanMotor, varyingMotor, firstMonitor };
+
+            // Enable/disable the normalise checkbox depending on monitor availability
+            const normCb = document.getElementById('imap-normalize');
+            normCb.disabled = !hasMonitor;
+            normCb.checked  = false;
+            normCb.parentElement.style.color = hasMonitor ? '' : '#aaa';
+            normCb.parentElement.title = hasMonitor ? '' : 'No monitor column found in selected files';
+
+            // Build validation summary
+            const warnHTML = warnings.length
+                ? `<br><strong>Warnings:</strong> ${warnings.join('; ')}`
+                : '';
+            msgEl.innerHTML = `<div class="imap-validation-msg ok">
+                ✔ Valid: <strong>${selected.length}</strong> scans of <em>${scanMotor}</em>
+                at different <em>${varyingMotor}</em> positions.
+                X axis: <strong>${xMotor}</strong>, Y axis: <strong>${yMotor}</strong>.
+                ${hasMonitor ? 'Monitor column found — normalisation available.' : 'No monitor column.'}${warnHTML}
+            </div>`;
+
+            document.getElementById('imap-zmin').value = '';
+            document.getElementById('imap-zmax').value = '';
+            document.getElementById('imap-controls').style.display = 'flex';
+            renderImapPlot();
+        }
+
+function renderImapPlot(zmin, zmax) {
+            if (!_imapData) return;
+            const { allX, allY, allZ_det, allZ_mon, hasMonitor, xMotor, yMotor } = _imapData;
+
+            const colorscale   = document.getElementById('imap-colorscale').value;
+            const normalize    = hasMonitor && document.getElementById('imap-normalize').checked;
+            const showContours = document.getElementById('imap-show-contours').checked;
+            const factor       = parseFloat(document.getElementById('imap-norm-factor').value);
+            const normFactor   = (isNaN(factor) || factor === 0) ? 1 : factor;
+
+            // Build Z: raw detector, or (det / mon) × factor
+            const allZ = allZ_det.map((det, i) => {
+                if (!normalize) return det;
+                const mon = allZ_mon[i];
+                return (mon !== null && mon > 0) ? det / mon * normFactor : null;
+            });
+
+            const cbTitle = normalize ? `Det/Mon×${normFactor}` : 'Detector';
+
+            const trace = {
+                x: allX,
+                y: allY,
+                z: allZ,
+                type: 'contour',
+                colorscale: colorscale,
+                contours: {
+                    coloring: 'heatmap',
+                    showlines: showContours
+                },
+                colorbar: { title: cbTitle, thickness: 16 },
+                line: { smoothing: 0.85, width: showContours ? 0.5 : 0 } //line: { smoothing: 0.85 }
+            };
+
+            if (zmin !== undefined && zmin !== null && !isNaN(zmin)) trace.zmin = zmin;
+            if (zmax !== undefined && zmax !== null && !isNaN(zmax)) trace.zmax = zmax;
+
+            // Use slider value for width; height is derived to keep a reasonable aspect ratio
+            const plotWidth  = parseInt(document.getElementById('imap-width-slider').value, 10) || 700;
+            const plotHeight = Math.round(plotWidth * 0.65);
+
+            const layout = {
+                width:  plotWidth,
+                height: plotHeight,
+                xaxis: { title: xMotor, showgrid: true, gridcolor: '#e6e6e6' },
+                yaxis: { title: yMotor, showgrid: true, gridcolor: '#e6e6e6' },
+                margin: { l: 60, r: 100, t: 30, b: 55 },
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('imap-plot-area', [trace], layout);
+        }
+
+        function applyImapScale() {
+            const zminVal = parseFloat(document.getElementById('imap-zmin').value);
+            const zmaxVal = parseFloat(document.getElementById('imap-zmax').value);
+            renderImapPlot(
+                isNaN(zminVal) ? undefined : zminVal,
+                isNaN(zmaxVal) ? undefined : zmaxVal
+            );
+        }
+
+        // Called when Normalize checkbox is toggled — set factor default to first-scan monitor
+        function imapOnNormalizeChange() {
+            const cb = document.getElementById('imap-normalize');
+            const factorInput = document.getElementById('imap-norm-factor');
+            const hint = document.getElementById('imap-norm-hint');
+            if (cb.checked && _imapData && _imapData.firstMonitor !== null) {
+                factorInput.value = _imapData.firstMonitor.toFixed(0);
+                hint.textContent  = `(default = first-scan monitor: ${_imapData.firstMonitor.toFixed(0)})`;
+            } else if (!cb.checked) {
+                hint.textContent = '';
+            }
+            applyImapScale();
+        }
+
+        // Resize handler from the slider
+        function imapResizePlot(val) {
+            document.getElementById('imap-width-label').textContent = val + ' px';
+            applyImapScale();
+        }
+
+        // Save the current map data as CSV
+        function imapSaveCsv() {
+            if (!_imapData) return;
+            const { allX, allY, allZ_det, allZ_mon, hasMonitor, xMotor, yMotor } = _imapData;
+
+            const normalize = hasMonitor && document.getElementById('imap-normalize').checked;
+            const factor    = parseFloat(document.getElementById('imap-norm-factor').value);
+            const normFactor = (isNaN(factor) || factor === 0) ? 1 : factor;
+
+            let header, rows;
+            if (normalize) {
+                header = `${xMotor},${yMotor},intensity_normalized`;
+                rows = allX.map((x, i) => {
+                    const mon = allZ_mon[i];
+                    const z = (mon !== null && mon > 0) ? allZ_det[i] / mon * normFactor : '';
+                    return `${x},${allY[i]},${z}`;
+                });
+            } else {
+                header = `${xMotor},${yMotor},detector`;
+                rows = allX.map((x, i) => `${x},${allY[i]},${allZ_det[i]}`);
+            }
+
+            const csv = header + '\n' + rows.join('\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+            a.download = normalize ? 'intensity_map_normalized.csv' : 'intensity_map_raw.csv';
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
+        }
+
+
+        // ═══════════════════════════════════════════════════════════════
+        //  COMBINE SWEEP SCANS
+        // ═══════════════════════════════════════════════════════════════
+
+        let _cssData       = null;   // processed combined rows
+        let _cssColNames   = [];     // column names of combined data
+        let _cssExtraCols  = [];     // user-selected extra column names
+
+        function openCombineSweepScans() {
+            if (!window.fileDataStore || window.fileDataStore.length === 0) {
+                alert('Please load data files first.');
+                return;
+            }
+            // Reset state
+            _cssData = null;
+            _cssExtraCols = [];
+            document.getElementById('css-msg').innerHTML = '';
+            document.getElementById('css-plot-area').innerHTML = '';
+            document.getElementById('css-save-btn').style.display = 'none';
+            document.getElementById('css-data-preview').style.display = 'none';
+
+            // Build scan-number → store index map from loaded filenames
+            window._cssScanMap = {};
+            (window.fileNames || []).forEach((name, i) => {
+                const m = name.match(/scan(\d+)/i);
+                if (m) window._cssScanMap[parseInt(m[1], 10)] = i;
+            });
+
+            // Seed with one empty range row
+            document.getElementById('css-ranges-container').innerHTML = '';
+            cssAddRange();
+
+            // Populate available columns from union of all loaded files
+            cssRefreshAvailableCols();
+            cssRefreshSelectedTags();
+            cssRefreshSortSelect();
+
+            document.getElementById('css-popup').style.display = 'flex';
+        }
+
+        function closeCssPopup() {
+            document.getElementById('css-popup').style.display = 'none';
+        }
+
+        // ── Range rows ────────────────────────────────────────────────
+        let _cssRangeId = 0;
+        function cssAddRange() {
+            const id = _cssRangeId++;
+            const container = document.getElementById('css-ranges-container');
+            const isFirst = container.children.length === 0;
+            const row = document.createElement('div');
+            row.className = 'css-range-row';
+            row.id = `css-range-${id}`;
+            // Only show ✕ button on additional rows, never on the first
+            const removeBtn = isFirst
+                ? ''
+                : `<button class="css-remove-btn" onclick="cssRemoveRange(${id})">✕</button>`;
+            row.innerHTML = `
+                <span class="css-range-label">Start no.</span>
+                <input type="number" id="css-start-${id}" min="1" step="1" placeholder="e.g. 101">
+                <span class="css-range-label">to End no.</span>
+                <input type="number" id="css-end-${id}"   min="1" step="1" placeholder="e.g. 120">
+                ${removeBtn}`;
+            container.appendChild(row);
+        }
+
+        function cssRemoveRange(id) {
+            const el = document.getElementById(`css-range-${id}`);
+            if (el) el.remove();
+        }
+
+        // Collect all active scan number ranges as [{start, end}]
+        function cssGetRanges() {
+            const rows = document.querySelectorAll('#css-ranges-container .css-range-row');
+            const ranges = [];
+            rows.forEach(row => {
+                const id  = row.id.replace('css-range-', '');
+                const s   = parseInt(document.getElementById(`css-start-${id}`).value, 10);
+                const e   = parseInt(document.getElementById(`css-end-${id}`).value,   10);
+                if (!isNaN(s) && !isNaN(e) && e >= s) ranges.push({ start: s, end: e });
+            });
+            return ranges;
+        }
+
+        // ── Column picker ─────────────────────────────────────────────
+        function cssRefreshAvailableCols() {
+            // Union of all column names across loaded files, excluding always-included ones
+            const always = new Set(['detector','monitor']);
+            const allCols = new Set();
+            (window.fileDataStore || []).forEach(store => {
+                if (store) store.columnNames.forEach(c => {
+                    if (!always.has(c.toLowerCase())) allCols.add(c);
+                });
+            });
+            const container = document.getElementById('css-available-cols');
+            container.innerHTML = '';
+            [...allCols].sort().forEach(col => {
+                const btn = document.createElement('button');
+                btn.className = 'css-avail-col-btn' +
+                    (_cssExtraCols.includes(col) ? ' selected' : '');
+                btn.textContent = col;
+                btn.onclick = () => cssToggleCol(col);
+                container.appendChild(btn);
+            });
+        }
+
+        function cssToggleCol(col) {
+            const idx = _cssExtraCols.indexOf(col);
+            if (idx >= 0) _cssExtraCols.splice(idx, 1);
+            else          _cssExtraCols.push(col);
+            cssRefreshAvailableCols();
+            cssRefreshSelectedTags();
+            cssRefreshSortSelect();
+        }
+
+        function cssRefreshSelectedTags() {
+            const container = document.getElementById('css-selected-col-tags');
+            container.innerHTML = '';
+            _cssExtraCols.forEach(col => {
+                const tag = document.createElement('div');
+                tag.className = 'css-col-tag';
+                tag.innerHTML = `${col} <span class="css-tag-remove" onclick="cssToggleCol('${col}')">×</span>`;
+                container.appendChild(tag);
+            });
+        }
+
+        function cssRefreshSortSelect() {
+            const sel = document.getElementById('css-sort-col');
+            const prev = sel.value;
+            sel.innerHTML = '';
+            // Always-available columns + user-selected extras
+            const cols = ['detector', 'monitor', ..._cssExtraCols];
+            cols.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c; opt.textContent = c;
+                sel.appendChild(opt);
+            });
+            // Restore previous selection if still present
+            if ([...sel.options].some(o => o.value === prev)) sel.value = prev;
+        }
+
+        // ── Main processing ───────────────────────────────────────────
+        function cssProcess() {
+            const msgEl = document.getElementById('css-msg');
+            msgEl.innerHTML = '';
+            _cssData = null;
+            document.getElementById('css-save-btn').style.display = 'none';
+            document.getElementById('css-data-preview').style.display = 'none';
+
+            const ranges = cssGetRanges();
+            if (ranges.length === 0) {
+                msgEl.innerHTML = `<div class="css-msg err">Enter at least one valid scan range (start ≤ end).</div>`;
+                return;
+            }
+
+            const scanMap = window._cssScanMap || {};
+            const always  = ['detector', 'monitor'];
+            const sortCol = document.getElementById('css-sort-col').value;
+            const rebin   = Math.max(1, parseInt(document.getElementById('css-rebin').value, 10) || 1);
+            const yMode   = document.getElementById('css-y-col').value;   // 'detector' or 'det_mon'
+
+            // Build list of scan numbers in range order
+            const scanNums = [];
+            ranges.forEach(({ start, end }) => {
+                for (let n = start; n <= end; n++) scanNums.push(n);
+            });
+
+            // Deduplicate and sort
+            const uniqueNums = [...new Set(scanNums)].sort((a, b) => a - b);
+
+            // Columns to extract: always + extras
+            const wantedCols = [...new Set([...always, ..._cssExtraCols])];
+
+            const found = [], missing = [];
+            const combinedRows = [];   // array of objects { colName: value, ... }
+
+            uniqueNums.forEach(n => {
+                const storeIdx = scanMap[n];
+                if (storeIdx === undefined) { missing.push(n); return; }
+                const store = window.fileDataStore[storeIdx];
+                if (!store) { missing.push(n); return; }
+                found.push(n);
+
+                // Build column index map for this file
+                const colIdxMap = {};
+                wantedCols.forEach(col => {
+                    const idx = store.columnNames.findIndex(
+                        c => c.toLowerCase() === col.toLowerCase()
+                    );
+                    colIdxMap[col] = idx;   // -1 if absent
+                });
+
+                store.data.forEach(row => {
+                    const obj = { _scan: n };
+                    wantedCols.forEach(col => {
+                        const idx = colIdxMap[col];
+                        obj[col] = (idx >= 0 && typeof row[idx] === 'number') ? row[idx] : null;
+                    });
+                    combinedRows.push(obj);
+                });
+            });
+
+            if (combinedRows.length === 0) {
+                msgEl.innerHTML = `<div class="css-msg err">No data found. Check scan numbers match loaded files.</div>`;
+                return;
+            }
+
+            // Sort rows by chosen column
+            combinedRows.sort((a, b) => (a[sortCol] ?? Infinity) - (b[sortCol] ?? Infinity));
+
+            // Rebin: average groups of `rebin` rows
+            const rebinned = [];
+            for (let i = 0; i < combinedRows.length; i += rebin) {
+                const chunk = combinedRows.slice(i, i + rebin);
+                const avg = { _scan: chunk[0]._scan };
+                wantedCols.forEach(col => {
+                    const vals = chunk.map(r => r[col]).filter(v => v !== null);
+                    avg[col] = vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
+                });
+                rebinned.push(avg);
+            }
+
+            _cssData     = rebinned;
+            _cssColNames = wantedCols;
+
+            const warnMsg = missing.length
+                ? ` <span style="color:#b71c1c;">⚠ ${missing.length} scan(s) not found in loaded files: ${missing.slice(0,10).join(', ')}${missing.length>10?'…':''}</span>`
+                : '';
+            msgEl.innerHTML = `<div class="css-msg ok">
+                ✔ Combined ${found.length} scan(s), ${combinedRows.length} rows → ${rebinned.length} bins.
+                Sorted by <strong>${sortCol}</strong>, rebin = ${rebin}.${warnMsg}
+            </div>`;
+
+            cssPloyCombined(sortCol, yMode);
+            cssRenderDataTable(wantedCols);
+            document.getElementById('css-save-btn').style.display = 'inline-block';
+            document.getElementById('css-data-preview').style.display = 'block';
+        }
+
+        // ── Plot ──────────────────────────────────────────────────────
+        function cssPloyCombined(sortCol, yMode) {
+            const xVals = _cssData.map(r => r[sortCol]);
+            let yVals, yLabel;
+
+            if (yMode === 'det_mon') {
+                yVals  = _cssData.map(r => {
+                    const d = r['detector'], m = r['monitor'];
+                    return (d !== null && m !== null && m > 0) ? d / m : null;
+                });
+                yLabel = 'Detector / Monitor';
+            } else {
+                yVals  = _cssData.map(r => r['detector']);
+                yLabel = 'Detector';
+            }
+
+            const trace = {
+                x: xVals, y: yVals,
+                mode: 'lines+markers',
+                type: 'scatter',
+                marker: { size: 5, color: '#1976D2' },
+                line:   { color: '#1976D2' }
+            };
+
+            const layout = {
+                xaxis: {
+                    title: sortCol,
+                    showgrid: true, gridcolor: '#e6e6e6',
+                    showline: true, linecolor: '#444', mirror: 'ticks',
+                    zeroline: false
+                },
+                yaxis: {
+                    title: yLabel,
+                    showgrid: true, gridcolor: '#e6e6e6',
+                    showline: true, linecolor: '#444', mirror: 'ticks',
+                    zeroline: false
+                },
+                margin: { l: 60, r: 30, t: 30, b: 55 },
+                hovermode: 'closest',
+                plot_bgcolor: '#ffffff',
+                paper_bgcolor: '#ffffff'
+            };
+
+            Plotly.newPlot('css-plot-area', [trace], layout, { responsive: true });
+        }
+
+        // ── Data table preview ────────────────────────────────────────
+        function cssRenderDataTable(cols) {
+            const container = document.getElementById('css-data-table');
+            let html = '<table style="border-collapse:collapse;width:100%"><thead><tr>';
+            html += '<th style="border:1px solid #ddd;padding:4px 7px;background:#f1f1f1;">scan</th>';
+            cols.forEach(c => {
+                html += `<th style="border:1px solid #ddd;padding:4px 7px;background:#f1f1f1;">${c}</th>`;
+            });
+            html += '</tr></thead><tbody>';
+            _cssData.forEach(row => {
+                html += '<tr>';
+                html += `<td style="border:1px solid #ddd;padding:3px 7px;text-align:right;">${row._scan}</td>`;
+                cols.forEach(c => {
+                    const v = row[c];
+                    html += `<td style="border:1px solid #ddd;padding:3px 7px;text-align:right;">${
+                        v !== null ? v.toFixed(4) : 'N/A'
+                    }</td>`;
+                });
+                html += '</tr>';
+            });
+            html += '</tbody></table>';
+            container.innerHTML = html;
+        }
+
+        // ── Save / export ─────────────────────────────────────────────
+        function cssSaveData() {
+            if (!_cssData || _cssData.length === 0) return;
+            const cols = ['_scan', ..._cssColNames];
+            const header = cols.map(c => c === '_scan' ? 'scan_num' : c).join('\t');
+            const lines  = _cssData.map(row =>
+                cols.map(c => {
+                    const v = row[c];
+                    return v !== null ? v.toFixed(6) : 'NaN';
+                }).join('\t')
+            );
+            const text = header + '\n' + lines.join('\n');
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+            a.download = 'combined_sweep.txt';
+            a.click();
+        }
+
+
+// ═══════════════════════════════════════════════════════════════
+        //  HE-3 POLARIZATION ANALYSIS
+        // ═══════════════════════════════════════════════════════════════
+
+        // Stores fitted cell parameters: { P0, Gamma, Opacity }
+        let _he3PolPar = null;
+        let _he3AnaPar = null;
+
+        // ── Open / close ─────────────────────────────────────────────
+        function openHe3Popup() {
+            if (!window.fileDataStore || window.fileDataStore.length === 0) {
+                alert('Please load data files first.');
+                return;
+            }
+            he3BuildFileLists();
+            document.getElementById('he3-popup').style.display = 'flex';
+            // Wire up the mixed-mode toggle
+            document.getElementById('he3-mag-mixed').onchange = function() {
+                document.getElementById('he3-mag-nuclear-list-area').style.display =
+                    this.checked ? 'block' : 'none';
+            };
+        }
+        function closeHe3Popup() {
+            document.getElementById('he3-popup').style.display = 'none';
+        }
+
+        // ── Build all file-selection lists ────────────────────────────
+        function he3BuildFileLists() {
+            const ids = [
+                'he3-pol-decay-list', 'he3-pol-empty-list',
+                'he3-ana-decay-list', 'he3-ana-empty-list',
+                'he3-nuc-file-list',  'he3-mag-file-list',
+                'he3-mag-nuc-file-list'
+            ];
+            ids.forEach(id => {
+                const container = document.getElementById(id);
+                container.innerHTML = '';
+                // Empty-file lists get radio buttons (single selection)
+                const isEmpty  = id.includes('empty');
+                (window.fileNames || []).forEach((name, i) => {
+                    const store   = window.fileDataStore[i];
+                    const ts      = store && store.midTime ? store.midTime : 'no timestamp';
+                    const row     = document.createElement('div');
+                    row.className = 'he3-file-row';
+                    const inputType = isEmpty ? 'radio' : 'checkbox';
+                    const inputName = isEmpty ? id : '';
+                    row.innerHTML = `
+                        <input type="${inputType}" id="${id}-cb-${i}" name="${inputName}"
+                               style="width:15px;height:15px;flex-shrink:0;">
+                        <label for="${id}-cb-${i}"
+                               style="font-weight:normal;cursor:pointer;font-size:12px;">
+                            <strong>${name}</strong>
+                            <span style="color:#888;margin-left:6px;">${ts}</span>
+                        </label>`;
+                    container.appendChild(row);
+                });
+            });
+        }
+
+        // ── Helper: get checked indices from a list container ─────────
+        function he3GetChecked(containerId) {
+            return (window.fileNames || [])
+                .map((_, i) => i)
+                .filter(i => {
+                    const el = document.getElementById(`${containerId}-cb-${i}`);
+                    return el && el.checked;
+                });
+        }
+
+
+        // ── Helper: elapsed time in hours from a given t0 Date object ──
+        // t0 is the midTime of the first decay scan for that cell (set per-cell in he3FitCell)
+        function he3ElapsedHours(midTimeStr, t0) {
+            if (!t0 || !midTimeStr) return 0;
+            return (new Date(midTimeStr) - t0) / 3600000;   // ms → hours
+        }
+
+        // ── Helper: fit single Gaussian+bg, return integrated amplitude ─
+        // params: [A, x0, sigma, bg]  — using existing gaussian_bg()
+        function he3FitGaussian(xData, yData) {
+            const maxY  = Math.max(...yData);
+            const maxI  = yData.indexOf(maxY);
+            const x0_0  = xData[maxI];
+            const sig0  = (Math.max(...xData) - Math.min(...xData)) / 4;
+            const bg0   = Math.min(...yData);
+            const init  = [maxY, x0_0, sig0, bg0];
+            const p     = levenbergMarquardt(xData, yData, gaussian_bg, init);
+            // Integrated area = A (the amplitude parameter is already integrated area in gaussian_bg)
+            return { A: p[0], x0: p[1], sigma: p[2], bg: p[3], params: p };
+        }
+
+        // ── Decay function: P0 * exp(-t / Gamma) ─────────────────────
+        function he3DecayFunc(t, P0, Gamma) {
+            return P0 * Math.exp(-t / Gamma);
+        }
+
+        // ── Fit decay curve with LM ───────────────────────────────────
+        function he3FitDecay(tArr, polArr) {
+            // Initial guess: P0 ~ first polarization, Gamma ~ 100 h
+            const init = [polArr[0], 100.0];
+            const p    = levenbergMarquardt(
+                tArr, polArr,
+                (t, P0, Gamma) => he3DecayFunc(t, P0, Gamma),
+                init, 2000, 1e-10
+            );
+            return { P0: p[0], Gamma: p[1] };
+        }
+
+        // ── Render editable time/intensity table before fitting ───────
+        function he3RenderEditableTable(cellKey, rows) {
+            // rows: [{name, t, intensity}]
+            const areaId = cellKey === 'pol' ? 'he3-pol-table-area' : 'he3-ana-table-area';
+            const area   = document.getElementById(areaId);
+            let html = `
+                <div style="margin-top:10px;">
+                    <div style="font-size:12px;color:#555;margin-bottom:4px;">
+                        Review / edit elapsed times (hours) and intensities before fitting:
+                    </div>
+                    <table class="he3-table">
+                        <thead><tr>
+                            <th>Scan</th><th>Elapsed time (h)</th><th>Intensity (det/mon)</th>
+                        </tr></thead>
+                        <tbody id="he3-${cellKey}-tbody">`;
+            rows.forEach((r, i) => {
+                html += `<tr>
+                    <td style="text-align:left;font-size:11px;">${r.name}</td>
+                    <td><input type="number" id="he3-${cellKey}-t-${i}"
+                               value="${r.t.toFixed(4)}" step="any"
+                               style="width:90px;padding:2px 5px;border:1px solid #ccc;border-radius:3px;font-size:12px;"></td>
+                    <td><input type="number" id="he3-${cellKey}-I-${i}"
+                               value="${r.intensity.toFixed(6)}" step="any"
+                               style="width:110px;padding:2px 5px;border:1px solid #ccc;border-radius:3px;font-size:12px;"></td>
+                </tr>`;
+            });
+            html += `</tbody></table>
+                <button class="fit-button" onclick="he3RunDecayFit('${cellKey}', ${rows.length})"
+                        style="width:auto;padding:6px 14px;font-size:13px;margin-top:8px;background:#1565c0;">
+                    Fit Decay Curve
+                </button>
+            </div>`;
+            area.innerHTML = html;
+        }
+
+        // ── Step 1/2: fit cell decay ──────────────────────────────────
+        function he3FitCell(cellKey) {
+            const decayListId = `he3-${cellKey}-decay-list`;
+            const emptyListId = `he3-${cellKey}-empty-list`;
+            const msgId       = `he3-${cellKey}-msg`;
+            const msgEl       = document.getElementById(msgId);
+            msgEl.innerHTML   = '';
+
+            const decayIndices = he3GetChecked(decayListId);
+            const emptyIndices = he3GetChecked(emptyListId);
+
+            if (decayIndices.length < 3) {
+                msgEl.innerHTML = `<div class="he3-msg err">Select at least 3 decay scans: 2 or more timed scans plus the fully depolarised scan as the last.</div>`;
+                return;
+            }
+            if (emptyIndices.length !== 1) {
+                msgEl.innerHTML = `<div class="he3-msg err">Select exactly one no-cell reference scan.</div>`;
+                return;
+            }
+
+            msgEl.innerHTML = `<div class="he3-msg info">Fitting peaks…</div>`;
+
+            try {
+                // --- Fit empty (no-cell) scan ---
+                const emptyStore = window.fileDataStore[emptyIndices[0]];
+                const emptySum   = window.fileSummaries[emptyIndices[0]];
+                const eXIdx      = emptySum.scanningMotorIndex;
+                const eDetIdx    = emptyStore.columnNames.findIndex(n => n.toLowerCase() === 'detector');
+                const eMonIdx    = emptyStore.columnNames.findIndex(n => n.toLowerCase() === 'monitor');
+                const eX         = emptyStore.data.map(r => r[eXIdx]);
+                const eMon       = eMonIdx >= 0 ? emptyStore.data.map(r => r[eMonIdx]) : null;
+                const eDet       = emptyStore.data.map(r => r[eDetIdx]);
+                // Normalise by monitor if available
+                const eY = eMon ? eDet.map((d, i) => eMon[i] > 0 ? d / eMon[i] : 0) : eDet;
+                const emptyFit   = he3FitGaussian(eX, eY);
+                const I_empty    = emptyFit.A;
+
+                if (I_empty <= 0) throw new Error('Empty scan integrated intensity is zero or negative.');
+
+                /////////////////////////
+                // --- Determine t=0 from the midTime of the FIRST selected decay scan ---
+                const firstDecayStore = window.fileDataStore[decayIndices[0]];
+                if (!firstDecayStore.midTime) throw new Error('First decay scan has no timestamp. Check file headers contain start_time and end_time.');
+                const cellT0 = new Date(firstDecayStore.midTime);   // t=0 for this cell
+
+                // --- Fit each decay scan ---
+                const tableRows = [];
+                decayIndices.forEach((fileIdx, ii) => {
+                    const store   = window.fileDataStore[fileIdx];
+                    const sum     = window.fileSummaries[fileIdx];
+                    const xIdx    = sum.scanningMotorIndex;
+                    const detIdx  = store.columnNames.findIndex(n => n.toLowerCase() === 'detector');
+                    const monIdx  = store.columnNames.findIndex(n => n.toLowerCase() === 'monitor');
+                    const xD      = store.data.map(r => r[xIdx]);
+                    const detD    = store.data.map(r => r[detIdx]);
+                    const monD    = monIdx >= 0 ? store.data.map(r => r[monIdx]) : null;
+                    const yD      = monD ? detD.map((d, i) => monD[i] > 0 ? d / monD[i] : 0) : detD;
+                    const fit     = he3FitGaussian(xD, yD);
+                    const t       = he3ElapsedHours(store.midTime, cellT0);   // relative to first decay scan
+                    tableRows.push({ name: window.fileNames[fileIdx], t, intensity: fit.A });
+                });
+
+                // Store raw data and t=0 for use in correction steps
+                window[`_he3_${cellKey}_emptyI`]   = I_empty;
+                window[`_he3_${cellKey}_tableRows`] = tableRows;
+                window[`_he3_${cellKey}_t0`]        = cellT0;   // stored for Steps 3 & 4
+
+                ////////////////////////
+
+                he3RenderEditableTable(cellKey, tableRows);
+                msgEl.innerHTML = `<div class="he3-msg ok">
+                    ✔ Peak fitting done. Empty intensity = ${I_empty.toFixed(4)}.
+                    Review times/intensities below, then click <strong>Fit Decay Curve</strong>.
+                </div>`;
+            } catch(e) {
+                msgEl.innerHTML = `<div class="he3-msg err">Error: ${e.message}</div>`;
+            }
+        }
+
+        // ── Run decay fit from the editable table ─────────────────────
+        function he3RunDecayFit(cellKey, nRows) {
+            const msgEl    = document.getElementById(`he3-${cellKey}-msg`);
+            const plotElId = `he3-${cellKey}-plot`;
+            const resElId  = `he3-${cellKey}-result`;
+            const I_empty  = window[`_he3_${cellKey}_emptyI`];
+
+            // Read user-edited values
+            const tArr  = [], IArr = [], names = [];
+            for (let i = 0; i < nRows; i++) {
+                const tVal = parseFloat(document.getElementById(`he3-${cellKey}-t-${i}`).value);
+                const iVal = parseFloat(document.getElementById(`he3-${cellKey}-I-${i}`).value);
+                if (isNaN(tVal) || isNaN(iVal)) {
+                    msgEl.innerHTML = `<div class="he3-msg err">Row ${i+1}: invalid time or intensity.</div>`;
+                    return;
+                }
+                tArr.push(tVal);
+                IArr.push(iVal);
+            }
+
+            try {
+                const I_depol  = IArr[IArr.length - 1];   // last scan = fully depolarised
+                const Opacity  = -Math.log(I_depol / I_empty);
+
+                if (Opacity <= 0) throw new Error('Computed opacity is ≤ 0. Check that the depolarised intensity < empty intensity.');
+
+                // Polarization at each time step (exclude the last depol point)
+                const tFit   = tArr.slice(0, -1);
+                const polFit = IArr.slice(0, -1).map((I, idx) => {
+                    const ratio = I / I_depol;
+                    if (ratio < 1.0) throw new Error(
+                        `Row ${idx + 1}: intensity (${I.toFixed(4)}) ≤ depolarised intensity (${I_depol.toFixed(4)}). ` +
+                        `Check scan order — the depolarised scan must be last, and all other scans must have higher intensity.`
+                    );
+                    return Math.acosh(ratio) / Opacity;
+                });
+
+                if (tFit.length < 2) throw new Error('Need at least 2 timed decay points (excluding the depol scan) to fit the exponential.');
+
+                const { P0, Gamma } = he3FitDecay(tFit, polFit);
+
+
+                // Store results globally, including t=0 for this cell
+                const cellT0 = window[`_he3_${cellKey}_t0`];
+                const par = { P0, Gamma, Opacity, t0: cellT0 };
+                if (cellKey === 'pol') _he3PolPar = par;
+                else                   _he3AnaPar = par;
+
+                // Plot: data points + fitted curve
+                //const tMax   = Math.max(...tFit) * 1.1;
+                // Plot: data points + fitted curve
+                const tMax   = Math.max(...tFit) > 0 ? Math.max(...tFit) * 1.1 : 1.0;
+                const tCurve = Array.from({ length: 200 }, (_, i) => i * tMax / 199);
+                const pCurve = tCurve.map(t => he3DecayFunc(t, P0, Gamma));
+
+                const plotEl = document.getElementById(plotElId);
+                plotEl.style.display = 'block';
+                Plotly.newPlot(plotElId, [
+                    {
+                        x: tFit, y: polFit,
+                        mode: 'markers', type: 'scatter', name: 'Data',
+                        marker: { size: 7, color: '#1976D2' }
+                    },
+                    {
+                        x: tCurve, y: pCurve,
+                        mode: 'lines', type: 'scatter', name: 'Fit',
+                        line: { color: '#e53935', width: 2 }
+                    }
+                ], {
+                    xaxis: { title: 'Elapsed time (h)', showline: true, mirror: 'ticks', zeroline: false },
+                    yaxis: { title: 'He-3 polarization', showline: true, mirror: 'ticks', zeroline: false },
+                    margin: { l: 55, r: 20, t: 20, b: 50 },
+                    legend: { x: 0.75, y: 0.95 },
+                    plot_bgcolor: '#fff', paper_bgcolor: '#fff'
+                }, { responsive: true });
+
+                const cellLabel = cellKey === 'pol' ? 'Polarizer' : 'Analyser';
+                document.getElementById(resElId).innerHTML = `
+                    <div class="he3-result-box">
+                        <h4>${cellLabel} decay parameters</h4>
+                        <div><strong>P₀ (initial polarization):</strong> ${P0.toFixed(6)}</div>
+                        <div><strong>Γ (decay lifetime, h):</strong> ${Gamma.toFixed(4)}</div>
+                        <div><strong>Opacity (μl):</strong> ${Opacity.toFixed(6)}</div>
+                        <div><strong>t=0 (cell installation midtime):</strong> ${cellT0 ? cellT0.toISOString() : 'N/A'}</div>
+                        <div style="margin-top:6px;font-size:11px;color:#555;">
+                            Polarization at time t: P(t) = ${P0.toFixed(4)} × exp(−t / ${Gamma.toFixed(2)})
+                        </div>
+                        <button class="fit-button" onclick="he3SaveDecayFit('${cellKey}')"
+                                style="width:auto;padding:4px 12px;font-size:12px;margin-top:8px;background:#388e3c;">
+                            Save Decay Fit CSV
+                        </button>
+                    </div>`;
+
+                msgEl.innerHTML = `<div class="he3-msg ok">✔ Decay fit complete. P₀ = ${P0.toFixed(5)}, Γ = ${Gamma.toFixed(3)} h, Opacity = ${Opacity.toFixed(5)}.</div>`;
+            } catch(e) {
+                msgEl.innerHTML = `<div class="he3-msg err">Fit error: ${e.message}</div>`;
+            }
+        }
+
+        // ── Steps 3 & 4: intensity corrections ───────────────────────
+        function he3CorrectPeaks(mode) {
+            // mode = 'nuclear' or 'magnetic'
+            const listId  = mode === 'nuclear' ? 'he3-nuc-file-list' : 'he3-mag-file-list';
+            const msgId   = mode === 'nuclear' ? 'he3-nuc-msg'       : 'he3-mag-msg';
+            const resId   = mode === 'nuclear' ? 'he3-nuc-result'     : 'he3-mag-result';
+            const msgEl   = document.getElementById(msgId);
+            const resEl   = document.getElementById(resId);
+            msgEl.innerHTML = ''; resEl.innerHTML = '';
+
+            if (!_he3PolPar || !_he3AnaPar) {
+                msgEl.innerHTML = `<div class="he3-msg err">Complete Steps 1 and 2 first.</div>`;
+                return;
+            }
+
+            const selIdx = he3GetChecked(listId);
+            if (selIdx.length === 0) {
+                msgEl.innerHTML = `<div class="he3-msg err">Select at least one scan.</div>`;
+                return;
+            }
+
+            const useMixed = mode === 'magnetic' &&
+                             document.getElementById('he3-mag-mixed').checked;
+            let nucSelIdx = [];
+            if (useMixed) {
+                nucSelIdx = he3GetChecked('he3-mag-nuc-file-list');
+                if (nucSelIdx.length !== selIdx.length) {
+                    msgEl.innerHTML = `<div class="he3-msg err">
+                        Mixed mode: number of nuclear scans (${nucSelIdx.length}) must match
+                        magnetic scans (${selIdx.length}).
+                    </div>`;
+                    return;
+                }
+            }
+
+            try {
+                const results = [];
+
+                    selIdx.forEach((fileIdx, ii) => {
+                    const store   = window.fileDataStore[fileIdx];
+                    const sum     = window.fileSummaries[fileIdx];
+                    const xIdx    = sum.scanningMotorIndex;
+                    const detIdx  = store.columnNames.findIndex(n => n.toLowerCase() === 'detector');
+                    const monIdx  = store.columnNames.findIndex(n => n.toLowerCase() === 'monitor');
+                    const xD      = store.data.map(r => r[xIdx]);
+                    const detD    = store.data.map(r => r[detIdx]);
+                    const monD    = monIdx >= 0 ? store.data.map(r => r[monIdx]) : null;
+                    const yD      = monD ? detD.map((d, i) => monD[i] > 0 ? d / monD[i] : 0) : detD;
+                    const fit     = he3FitGaussian(xD, yD);
+                    const I_raw   = fit.A;
+
+                    const { P0: P0p, Gamma: Gp, Opacity: Op, t0: t0p } = _he3PolPar;
+                    const { P0: P0a, Gamma: Ga, Opacity: Oa, t0: t0a } = _he3AnaPar;
+
+                    // Each cell has its own t=0 (first decay scan of that cell).
+                    // Use the polarizer t=0 for polarizer decay, analyser t=0 for analyser decay.
+                    const t_pol = he3ElapsedHours(store.midTime, t0p);
+                    const t_ana = he3ElapsedHours(store.midTime, t0a);
+
+                    let I_corr;
+
+                    if (mode === 'nuclear') {
+                        // Python: coeff = 1/cosh(P(t)*Opacity); I_corr = I_raw * coeff_pol * coeff_ana
+                        //       = I_raw / cosh(P_pol(t_pol)*Op) / cosh(P_ana(t_ana)*Oa)
+                        const cP = Math.cosh(P0p * Math.exp(-t_pol / Gp) * Op);
+                        const cA = Math.cosh(P0a * Math.exp(-t_ana / Ga) * Oa);
+                        I_corr   = I_raw / cP / cA;
+                    } else if (!useMixed) {
+                        // Magnetic: I_corr = I_raw / tanh(P_pol(t)*Op) / tanh(P_ana(t)*Oa)
+                        const tP = Math.tanh(P0p * Math.exp(-t_pol / Gp) * Op);
+                        const tA = Math.tanh(P0a * Math.exp(-t_ana / Ga) * Oa);
+                        I_corr   = I_raw / tP / tA;
+                    } else {
+                        // Mixed mode: nuclear scan is paired and measured at ~same time
+                        const nucStore  = window.fileDataStore[nucSelIdx[ii]];
+                        const nucSum    = window.fileSummaries[nucSelIdx[ii]];
+                        const nxIdx     = nucSum.scanningMotorIndex;
+                        const nDetIdx   = nucStore.columnNames.findIndex(n => n.toLowerCase() === 'detector');
+                        const nMonIdx   = nucStore.columnNames.findIndex(n => n.toLowerCase() === 'monitor');
+                        const nxD       = nucStore.data.map(r => r[nxIdx]);
+                        const nDetD     = nucStore.data.map(r => r[nDetIdx]);
+                        const nMonD     = nMonIdx >= 0 ? nucStore.data.map(r => r[nMonIdx]) : null;
+                        const nyD       = nMonD ? nDetD.map((d, i) => nMonD[i] > 0 ? d / nMonD[i] : 0) : nDetD;
+                        const nucFit    = he3FitGaussian(nxD, nyD);
+                        const I_nclr    = nucFit.A;
+
+                        // Use the magnetic scan's own timestamps for both cells
+                        const E_pol = Math.tanh(P0p * Math.exp(-t_pol / Gp) * Op);
+                        const E_ana = Math.tanh(P0a * Math.exp(-t_ana / Ga) * Oa);
+                        const M_term1 = (1 + E_pol) * (1 + E_ana) * I_raw;
+                        const M_term2 = (1 + E_pol) * (1 - E_ana) * I_nclr;
+                        I_corr = (M_term1 - M_term2) / (2.0 * E_pol * E_ana);
+                    }
+
+
+                    results.push({
+                        name: window.fileNames[fileIdx],
+                        t_pol: t_pol.toFixed(3),
+                        t_ana: t_ana.toFixed(3),
+                        I_raw: I_raw.toFixed(6),
+                        I_corr: I_corr.toFixed(6)
+                    });
+
+
+                });
+
+                // Render results table
+                const modeLabel = mode === 'nuclear' ? 'nuclear' : (useMixed ? 'magnetic (mixed)' : 'magnetic');
+                let html = `
+                    <table class="he3-table" style="margin-top:10px;">
+                        <thead><tr>
+                            <th>Scan</th>
+                            <th>t_pol (h)</th>
+                            <th>t_ana (h)</th>
+                            <th>Raw intensity</th>
+                            <th>Corrected intensity</th>
+                        </tr></thead><tbody>`;
+                results.forEach(r => {
+                    html += `<tr>
+                        <td style="text-align:left;font-size:11px;">${r.name}</td>
+                        <td>${r.t_pol}</td>
+                        <td>${r.t_ana}</td>
+                        <td>${r.I_raw}</td>
+                        <td style="font-weight:bold;color:#1565c0;">${r.I_corr}</td>
+                    </tr>`;
+                });
+                html += `</tbody></table>`;
+                // Store results for saving
+                window[`_he3_${mode}_results`] = results;
+                resEl.innerHTML = html;
+                msgEl.innerHTML = `<div class="he3-msg ok">✔ ${modeLabel} correction applied to ${results.length} scan(s).
+                    <button class="fit-button" onclick="he3SaveResults('${mode}')"
+                            style="width:auto;padding:4px 12px;font-size:12px;margin-left:12px;background:#388e3c;">
+                        Save CSV
+                    </button>
+                </div>`;
+            } catch(e) {
+                msgEl.innerHTML = `<div class="he3-msg err">Error: ${e.message}</div>`;
+            }
+        }
+
+        // ── Save: decay fit data + parameters for one cell ───────────
+        function he3SaveDecayFit(cellKey) {
+            const par = cellKey === 'pol' ? _he3PolPar : _he3AnaPar;
+            if (!par) { alert('No fitted parameters found. Run the decay fit first.'); return; }
+
+            const rows  = window[`_he3_${cellKey}_tableRows`] || [];
+            const I_empty = window[`_he3_${cellKey}_emptyI`] || 'N/A';
+            const label = cellKey === 'pol' ? 'polarizer' : 'analyser';
+
+            let lines = [];
+            // Header block
+            lines.push(`# He-3 ${label} decay fit results`);
+            lines.push(`# t0 (cell installation midtime): ${par.t0 ? par.t0.toISOString() : 'N/A'}`);
+            lines.push(`# P0 (initial polarization): ${par.P0.toFixed(8)}`);
+            lines.push(`# Gamma (decay lifetime, h): ${par.Gamma.toFixed(6)}`);
+            lines.push(`# Opacity: ${par.Opacity.toFixed(8)}`);
+            lines.push(`# I_empty (no-cell integrated intensity): ${typeof I_empty === 'number' ? I_empty.toFixed(6) : I_empty}`);
+            lines.push('#');
+            lines.push('scan_name,elapsed_time_h,intensity_det_per_mon');
+            rows.forEach(r => {
+                lines.push(`${r.name},${r.t.toFixed(6)},${r.intensity.toFixed(8)}`);
+            });
+
+            he3DownloadText(lines.join('\n'), `he3_${label}_decay_fit.csv`);
+        }
+
+        // ── Save: correction results (Steps 3 or 4) ──────────────────
+        function he3SaveResults(mode) {
+            const results = window[`_he3_${mode}_results`];
+            if (!results || results.length === 0) {
+                alert('No correction results to save. Run the correction first.');
+                return;
+            }
+            const polPar = _he3PolPar;
+            const anaPar = _he3AnaPar;
+            const label  = mode === 'nuclear' ? 'nuclear' : 'magnetic';
+
+            let lines = [];
+            lines.push(`# He-3 ${label} peak correction results`);
+            if (polPar) {
+                lines.push(`# Polarizer: P0=${polPar.P0.toFixed(6)}, Gamma=${polPar.Gamma.toFixed(4)} h, Opacity=${polPar.Opacity.toFixed(6)}, t0=${polPar.t0 ? polPar.t0.toISOString() : 'N/A'}`);
+            }
+            if (anaPar) {
+                lines.push(`# Analyser:  P0=${anaPar.P0.toFixed(6)}, Gamma=${anaPar.Gamma.toFixed(4)} h, Opacity=${anaPar.Opacity.toFixed(6)}, t0=${anaPar.t0 ? anaPar.t0.toISOString() : 'N/A'}`);
+            }
+            lines.push('#');
+            lines.push('scan_name,t_pol_h,t_ana_h,intensity_raw,intensity_corrected');
+            results.forEach(r => {
+                lines.push(`${r.name},${r.t_pol},${r.t_ana},${r.I_raw},${r.I_corr}`);
+            });
+
+            he3DownloadText(lines.join('\n'), `he3_${label}_correction.csv`);
+        }
+
+
+
+        // ── Utility: trigger a text/CSV file download and release memory ─
+        function he3DownloadText(text, filename) {
+            const url = URL.createObjectURL(new Blob([text], { type: 'text/plain' }));
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.click();
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
         }
 
     </script>
