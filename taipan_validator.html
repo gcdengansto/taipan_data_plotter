@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Taipan Batch Validator</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700&family=Syne:wght@400;600;700;800&display=swap');
+
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --surface2:  #21262d;
+    --border:    #30363d;
+    --accent:    #58a6ff;
+    --accent2:   #3fb950;
+    --warn:      #d29922;
+    --danger:    #f85149;
+    --text:      #e6edf3;
+    --muted:     #8b949e;
+    --pass-bg:   #0d1f12;
+    --fail-bg:   #1f0d0d;
+    --warn-bg:   #1f1a0d;
+    --pass-bdr:  #238636;
+    --fail-bdr:  #da3633;
+    --warn-bdr:  #9e6a03;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Syne', sans-serif;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  header {
+    padding: 14px 30px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    flex-shrink: 0;
+  }
+  header h1 { font-size: 19px; font-weight: 800; letter-spacing: -0.5px; }
+  header h1 span { color: var(--accent); }
+  header .sub { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  /* ── Tab bar ── */
+  .tab-bar {
+    display: flex;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    flex-shrink: 0;
+  }
+  .tab-btn {
+    padding: 9px 22px;
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  .tab-panel { display: none; flex: 1; min-height: 0; flex-direction: column; }
+  .tab-panel.active { display: flex; }
+
+  /* ── Shared ── */
+  .split {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+  .pane {
+    display: flex; flex-direction: column;
+    border-right: 1px solid var(--border);
+    min-height: 0; overflow: hidden;
+  }
+  .pane:last-child { border-right: none; }
+  .pane-header {
+    padding: 9px 16px;
+    border-bottom: 1px solid var(--border);
+    font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); background: var(--surface);
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .pane-header .actions { display: flex; gap: 6px; }
+
+  textarea {
+    flex: 1; background: var(--bg); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7;
+    border: none; outline: none; padding: 14px 16px; resize: none; tab-size: 4;
+  }
+  textarea::placeholder { color: var(--muted); opacity: 0.4; }
+
+  .toolbar {
+    padding: 7px 16px; border-bottom: 1px solid var(--border);
+    display: flex; gap: 7px; align-items: center;
+    background: var(--surface); flex-shrink: 0;
+  }
+
+  /* ── Buttons ── */
+  .btn {
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px;
+    padding: 5px 12px; border-radius: 5px; border: 1px solid var(--border);
+    cursor: pointer; transition: all 0.15s; letter-spacing: 0.04em; white-space: nowrap;
+  }
+  .btn-primary { background: var(--accent); color: #0d1117; border-color: var(--accent); }
+  .btn-primary:hover { background: #79c0ff; }
+  .btn-green { background: #1a3a22; color: #3fb950; border-color: #238636; }
+  .btn-green:hover { background: #238636; color: #fff; }
+  .btn-ghost { background: transparent; color: var(--muted); border-color: var(--border); }
+  .btn-ghost:hover { color: var(--text); border-color: var(--muted); }
+  .btn-upload { background: var(--surface2); color: var(--text); border-color: var(--border); }
+  .btn-upload:hover { border-color: var(--accent); color: var(--accent); }
+  #file-input { display: none; }
+
+  /* ── Validator results ── */
+  #results-area {
+    flex: 1; overflow-y: auto; padding: 10px 16px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.6;
+  }
+  .summary-bar {
+    padding: 7px 16px; border-top: 1px solid var(--border);
+    background: var(--surface); font-size: 12px;
+    font-family: 'JetBrains Mono', monospace; color: var(--muted);
+    display: flex; gap: 16px; flex-shrink: 0;
+  }
+  .summary-bar .s-pass { color: var(--accent2); font-weight: 700; }
+  .summary-bar .s-fail { color: var(--danger); font-weight: 700; }
+  .summary-bar .s-warn { color: var(--warn); font-weight: 700; }
+
+  .result-block { border-radius: 5px; border: 1px solid var(--border); margin-bottom: 5px; overflow: hidden; }
+  .result-block.pass { border-color: var(--pass-bdr); background: var(--pass-bg); }
+  .result-block.fail { border-color: var(--fail-bdr); background: var(--fail-bg); }
+  .result-block.warn { border-color: var(--warn-bdr); background: var(--warn-bg); }
+  .result-block.skip { border-color: var(--border); background: var(--surface); opacity: 0.6; }
+  .result-row { display: flex; align-items: flex-start; gap: 7px; padding: 5px 9px; }
+  .badge {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.06em;
+    padding: 2px 6px; border-radius: 3px; flex-shrink: 0; margin-top: 1px;
+    font-family: 'Syne', sans-serif;
+  }
+  .badge.pass { background: #238636; color: #fff; }
+  .badge.fail { background: #da3633; color: #fff; }
+  .badge.warn { background: #9e6a03; color: #fff; }
+  .badge.skip { background: #30363d; color: var(--muted); }
+  .result-line-num { color: var(--muted); font-size: 11px; min-width: 42px; flex-shrink: 0; margin-top: 2px; }
+  .result-content { flex: 1; min-width: 0; }
+  .result-cmd { color: var(--text); word-break: break-all; }
+  .result-cmd .cmd-kw { color: #79c0ff; }
+  .result-cmd .cmd-motor { color: #ffa657; }
+  .result-cmd .cmd-num { color: #56d364; }
+  .result-msg { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .result-block.fail .result-msg { color: #ffa198; }
+  .result-block.warn .result-msg { color: #e3b341; }
+  .result-block.pass .result-msg { color: #56d364; }
+  .section-divider {
+    font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: var(--muted); padding: 7px 3px 3px;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    border-bottom: 1px solid var(--border); margin-bottom: 6px;
+  }
+  .placeholder-msg {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    height: 100%; gap: 8px; color: var(--muted);
+    font-family: 'Syne', sans-serif; font-size: 14px; opacity: 0.5;
+  }
+  .placeholder-msg .icon { font-size: 30px; }
+  .stats-table { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 12px; }
+  .stats-table th {
+    text-align: left; color: var(--muted); font-weight: 600; padding: 3px 6px;
+    border-bottom: 1px solid var(--border); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .stats-table td { padding: 3px 6px; border-bottom: 1px solid #21262d; }
+  .stats-table td.num { color: #56d364; }
+  .stats-table td.motor { color: #ffa657; }
+
+  /* ════════════════════════════════════
+     GENERATOR TAB
+  ════════════════════════════════════ */
+  .gen-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr 1fr;
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Left: form */
+  .gen-form-col {
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column;
+    overflow-y: auto;
+  }
+  .gen-form-inner { padding: 16px; }
+
+  .form-section { margin-bottom: 16px; }
+  .form-section-title {
+    font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 9px; padding-bottom: 5px;
+    border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 6px;
+  }
+  .vary-badge {
+    font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px;
+    background: #1f3a5f; color: #58a6ff; font-family: 'Syne', sans-serif;
+  }
+
+  .form-row { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+  .form-row label {
+    font-size: 12px; color: var(--muted); min-width: 80px; flex-shrink: 0; font-weight: 600;
+  }
+  .form-row input, .form-row select {
+    flex: 1; background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 8px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    outline: none; transition: border-color 0.15s; min-width: 0;
+  }
+  .form-row input:focus, .form-row select:focus { border-color: var(--accent); }
+
+  /* Motor grid */
+  .motor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px 8px; margin-bottom: 3px; }
+  .motor-cell { display: flex; align-items: center; gap: 5px; }
+  .motor-cell label {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    color: #ffa657; min-width: 20px; font-weight: 700;
+  }
+  .motor-cell input {
+    flex: 1; background: var(--surface2); color: var(--text);
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 4px 6px; font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    outline: none; min-width: 0; transition: border-color 0.15s;
+  }
+  .motor-cell input:focus { border-color: var(--accent); }
+  .motor-cell input.varying { border-color: #58a6ff; background: #0d1f2e; }
+
+  .gen-btn-row { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 4px; }
+
+  /* Middle: preview */
+  .gen-preview-col {
+    border-right: 1px solid var(--border);
+    display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  }
+  #gen-preview-area {
+    flex: 1; overflow-y: auto; padding: 10px 12px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; line-height: 1.65;
+  }
+
+  /* Generated block */
+  .gen-block {
+    border: 1px solid var(--border); border-radius: 5px;
+    margin-bottom: 7px; overflow: hidden; background: var(--surface);
+  }
+  .gen-block-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 9px; background: var(--surface2);
+    border-bottom: 1px solid var(--border);
+  }
+  .gen-block-num {
+    font-size: 11px; font-weight: 700; color: var(--accent);
+    font-family: 'Syne', sans-serif; letter-spacing: 0.06em;
+  }
+  .gen-block-actions { display: flex; gap: 5px; align-items: center; }
+  .gen-block-body { padding: 7px 9px; }
+  .gen-cmd-line { margin-bottom: 1px; }
+  .gen-cmd-line .kw  { color: #79c0ff; }
+  .gen-cmd-line .mot { color: #ffa657; }
+  .gen-cmd-line .num { color: #56d364; }
+
+  .btn-expand {
+    font-size: 10px; padding: 2px 7px;
+    background: var(--surface); color: var(--muted);
+    border: 1px solid var(--border); border-radius: 3px;
+    cursor: pointer; font-family: 'Syne', sans-serif; font-weight: 700;
+    transition: all 0.12s;
+  }
+  .btn-expand:hover { color: var(--accent); border-color: var(--accent); }
+  .btn-add-pool {
+    font-size: 10px; padding: 2px 7px;
+    background: #0d1f12; color: #3fb950;
+    border: 1px solid #238636; border-radius: 3px;
+    cursor: pointer; font-family: 'Syne', sans-serif; font-weight: 700;
+    transition: all 0.12s;
+  }
+  .btn-add-pool:hover { background: #238636; color: #fff; }
+  .btn-add-pool.added { background: #238636; color: #fff; pointer-events: none; opacity: 0.8; }
+
+  /* Step table */
+  .step-table { display: none; margin-top: 7px; border-top: 1px solid var(--border); padding-top: 7px; }
+  .step-table.open { display: block; }
+  .step-table table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .step-table th {
+    text-align: center; color: var(--muted); padding: 2px 5px;
+    font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+    font-family: 'Syne', sans-serif; border-bottom: 1px solid var(--border);
+  }
+  .step-table td { text-align: center; padding: 2px 5px; color: #56d364; font-size: 11px; }
+  .step-table tr:nth-child(even) td { background: #161b22; }
+
+  /* Right: pool */
+  .gen-pool-col {
+    display: flex; flex-direction: column; min-height: 0; overflow: hidden;
+  }
+  #pool-textarea {
+    flex: 1; background: var(--bg); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.7;
+    border: none; outline: none; padding: 14px 16px; resize: none; tab-size: 4;
+    width: 100%; min-height: 0;
+  }
+  .pool-footer {
+    border-top: 1px solid var(--border); padding: 7px 12px;
+    background: var(--surface); display: flex; gap: 7px; flex-shrink: 0;
+    align-items: center; flex-wrap: wrap;
+  }
+  .pool-count { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; flex: 1; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Taipan <span>Batch Tools</span></h1>
+  <span class="sub">ANSTO · validator &amp; scan generator</span>
+</header>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('validate')">▶ Validator</button>
+  <button class="tab-btn"        onclick="switchTab('generate')">⊞ Scan Generator</button>
+</div>
+
+<!-- ══════════════════════════════
+     TAB 1: VALIDATOR
+══════════════════════════════ -->
+<div class="tab-panel active" id="tab-validate">
+  <div class="split">
+    <div class="pane">
+      <div class="pane-header">
+        <span>Input Commands</span>
+        <div class="actions">
+          <label for="file-input" class="btn btn-upload">↑ Upload File</label>
+          <input type="file" id="file-input" accept=".txt,.bat,.script">
+          <button class="btn btn-ghost" onclick="clearInput()">Clear</button>
+        </div>
+      </div>
+      <div class="toolbar">
+        <button class="btn btn-primary" onclick="validate()">▶ Validate</button>
+        <button class="btn btn-ghost"   onclick="loadExample()">Load Example</button>
+      </div>
+      <textarea id="input-area" placeholder="Paste batch commands here, or upload a file…"></textarea>
+    </div>
+    <div class="pane">
+      <div class="pane-header">
+        <span>Validation Results</span>
+        <div class="actions">
+          <button class="btn btn-ghost" onclick="clearResults()">Clear</button>
+        </div>
+      </div>
+      <div id="results-area">
+        <div class="placeholder-msg"><span class="icon">⬡</span><span>Paste commands and click Validate</span></div>
+      </div>
+      <div class="summary-bar" id="summary-bar" style="display:none;">
+        <span>Checked: <strong id="s-total">0</strong></span>
+        <span class="s-pass">✔ PASSED: <span id="s-pass">0</span></span>
+        <span class="s-fail">✘ FAILED: <span id="s-fail">0</span></span>
+        <span class="s-warn">⚠ WARNED: <span id="s-warn">0</span></span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════
+     TAB 2: GENERATOR
+══════════════════════════════ -->
+<div class="tab-panel" id="tab-generate">
+  <div class="gen-layout">
+
+    <!-- LEFT: Form -->
+    <div class="gen-form-col">
+      <div class="gen-form-inner">
+
+        <div class="form-section">
+          <div class="form-section-title">Sample / Label</div>
+          <div class="form-row">
+            <label>Sample</label>
+            <input type="text" id="g-sample" placeholder="e.g. PCMO 120K">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Fixed Drive Positions</div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:8px;line-height:1.5;">
+            Set starting positions for all four virtual motors.
+            The <em>varying motor</em> below will override its value each scan.
+          </div>
+          <div class="motor-grid" id="drive-motor-grid">
+            <div class="motor-cell"><label>qh</label><input type="number" id="d-qh" value="1"   step="any"></div>
+            <div class="motor-cell"><label>qk</label><input type="number" id="d-qk" value="0"   step="any"></div>
+            <div class="motor-cell"><label>ql</label><input type="number" id="d-ql" value="0.6" step="any"></div>
+            <div class="motor-cell"><label>en</label><input type="number" id="d-en" value="2"   step="any"></div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Scan Motor (runscan)</div>
+          <div class="form-row">
+            <label>Motor</label>
+            <select id="g-scan-motor">
+              <option value="qh">qh</option>
+              <option value="qk">qk</option>
+              <option value="ql" selected>ql</option>
+              <option value="en">en</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Start</label>
+            <input type="number" id="g-scan-start" value="0.6" step="any">
+          </div>
+          <div class="form-row">
+            <label>End</label>
+            <input type="number" id="g-scan-end" value="1.4" step="any">
+          </div>
+          <div class="form-row">
+            <label>Points</label>
+            <input type="number" id="g-scan-npts" value="41" step="1" min="2">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Counting</div>
+          <div class="form-row">
+            <label>Mode</label>
+            <select id="g-count-mode">
+              <option value="monitor" selected>monitor</option>
+              <option value="time">time</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Count</label>
+            <input type="number" id="g-count-val" value="200000" step="any">
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">
+            Varying Motor
+            <span class="vary-badge">SERIES</span>
+          </div>
+          <div style="font-size:11px;color:var(--muted);margin-bottom:9px;line-height:1.5;">
+            This motor's drive value steps from start to end in equal increments,
+            generating one title+drive+runscan group per step.
+          </div>
+          <div class="form-row">
+            <label>Motor</label>
+            <select id="g-vary-motor" onchange="onVaryMotorChange()">
+              <option value="qh">qh</option>
+              <option value="qk">qk</option>
+              <option value="ql">ql</option>
+              <option value="en" selected>en</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Start</label>
+            <input type="number" id="g-vary-start" value="2"  step="any">
+          </div>
+          <div class="form-row">
+            <label>End</label>
+            <input type="number" id="g-vary-end"   value="6"  step="any">
+          </div>
+          <div class="form-row">
+            <label>Step</label>
+            <input type="number" id="g-vary-step"  value="2"  step="any">
+          </div>
+        </div>
+
+        <div class="gen-btn-row">
+          <button class="btn btn-primary" onclick="generateScans()">⊞ Generate</button>
+          <button class="btn btn-ghost"   onclick="clearGenerated()">Clear</button>
+        </div>
+
+      </div><!-- gen-form-inner -->
+    </div><!-- gen-form-col -->
+
+    <!-- MIDDLE: Preview -->
+    <div class="gen-preview-col">
+      <div class="pane-header">
+        <span>Generated Scans</span>
+        <div class="actions">
+          <button class="btn btn-ghost" onclick="addAllToPool()">+ All to Pool</button>
+        </div>
+      </div>
+      <div id="gen-preview-area">
+        <div class="placeholder-msg"><span class="icon">⊞</span><span>Configure and click Generate</span></div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Command pool -->
+    <div class="gen-pool-col">
+      <div class="pane-header">
+        <span>Command Pool</span>
+        <div class="actions">
+          <button class="btn btn-ghost" onclick="clearPool()">Clear</button>
+        </div>
+      </div>
+      <textarea id="pool-textarea" placeholder="Approved scans appear here.&#10;&#10;You can also type directly.&#10;Use 'Send to Validator' to check the whole script."></textarea>
+      <div class="pool-footer">
+        <span class="pool-count" id="pool-count">0 lines</span>
+        <button class="btn btn-ghost"  onclick="copyPool()">Copy</button>
+        <button class="btn btn-green"  onclick="sendPoolToValidator()">→ Validator</button>
+        <button class="btn btn-green"  onclick="downloadPool()">↓ Download</button>
+      </div>
+    </div>
+
+  </div><!-- gen-layout -->
+</div><!-- tab-generate -->
+
+<script>
+// ═══════════════════════════════════════════════
+//  SHARED
+// ═══════════════════════════════════════════════
+const VIRTUAL_MOTORS = new Set(['qh','qk','ql','en']);
+const REAL_MOTORS    = new Set([
+  'm1','m2','s1','s2','a1','a2','sgu','sgl','stu','stl',
+  'ps_top','ps_bottom','ps_left','ps_right',
+  'pa_top','pa_bottom','pa_left','pa_right'
+]);
+const ALL_MOTORS = new Set([...VIRTUAL_MOTORS, ...REAL_MOTORS]);
+
+function isNum(s)       { return s!==undefined && !isNaN(parseFloat(s)) && isFinite(s); }
+function isMotor(s)     { return s!==undefined && ALL_MOTORS.has(s.toLowerCase()); }
+function isVirtual(s)   { return s!==undefined && VIRTUAL_MOTORS.has(s.toLowerCase()); }
+function isCountMode(s) { return s==='time' || s==='monitor'; }
+
+function tokenise(line) {
+  const toks=[], re=/\"([^\"]*)\"|\'([^\']*)\'|(\S+)/g; let m;
+  while((m=re.exec(line))!==null) toks.push(m[1]??m[2]??m[3]);
+  return toks;
+}
+function escHtml(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+// Format a float: remove trailing zeros, keep up to `dp` decimal places
+function fmt(n, dp=6) {
+  let s = parseFloat(n).toFixed(dp);
+  s = s.replace(/(\.\d*?)0+$/, '$1').replace(/\.$/, '');
+  return s;
+}
+
+// ═══════════════════════════════════════════════
+//  TAB SWITCHING
+// ═══════════════════════════════════════════════
+function switchTab(name) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>{
+    b.classList.toggle('active',(i===0&&name==='validate')||(i===1&&name==='generate'));
+  });
+  document.getElementById('tab-validate').classList.toggle('active', name==='validate');
+  document.getElementById('tab-generate').classList.toggle('active', name==='generate');
+}
+
+// ═══════════════════════════════════════════════
+//  VALIDATOR
+// ═══════════════════════════════════════════════
+function validateHset(t) {
+  if(t.length<3) return {ok:false,msg:'hset requires a SICS path and a value.'};
+  return {ok:true,msg:'hset valid.'};
+}
+function validateWait(t) {
+  if(t.length<2) return {ok:false,msg:'wait requires seconds.'};
+  if(!isNum(t[1])||parseFloat(t[1])<0) return {ok:false,msg:`Duration must be ≥ 0. Got "${t[1]}".`};
+  return {ok:true,msg:`Wait ${t[1]} s.`};
+}
+function validateTitle(t) {
+  if(t.length<2) return {ok:'warn',msg:'title has no text.'};
+  return {ok:true,msg:`Title: "${t.slice(1).join(' ')}"`};
+}
+function validateDrive(t, nextLine) {
+  const args=t.slice(1);
+  if(!args.length) return {ok:false,msg:'drive requires motor/value pairs.'};
+  if(args.length%2!==0) return {ok:false,msg:`drive needs even number of args. Got ${args.length}.`};
+  const motors=[];
+  for(let i=0;i<args.length;i+=2){
+    const m=args[i].toLowerCase(),v=args[i+1];
+    if(!isMotor(m)) return {ok:false,msg:`Unknown motor "${args[i]}".`};
+    if(!isNum(v))   return {ok:false,msg:`Value for "${m}" not a number: "${v}".`};
+    motors.push(m);
+  }
+  let warn=null;
+  if(nextLine){
+    const nt=tokenise(nextLine);
+    if(nt[0]!=='runscan') warn='drive is typically followed by runscan.';
+    else if(!isVirtual((nt[1]||'').toLowerCase()))
+      warn=`runscan motor "${nt[1]}" is not virtual (qh/qk/ql/en).`;
+  }
+  return {ok:warn?'warn':true, msg:`Drive: ${motors.join(', ')}.`+(warn?` ⚠ ${warn}`:'')};
+}
+function validateRunscan(t, prevDrive) {
+  if(t.length<7) return {ok:false,msg:`runscan needs: motor start end npts mode count. Got ${t.length-1}.`};
+  const [,motor,start,end,npts,mode,count]=[...t];
+  if(!isMotor(motor.toLowerCase())) return {ok:false,msg:`Unknown motor "${motor}".`};
+  if(!isNum(start)) return {ok:false,msg:`start not a number: "${start}".`};
+  if(!isNum(end))   return {ok:false,msg:`end not a number: "${end}".`};
+  if(!isNum(npts)||!Number.isInteger(parseFloat(npts))||parseInt(npts)<2)
+    return {ok:false,msg:`points must be integer ≥ 2. Got "${npts}".`};
+  if(!isCountMode(mode)) return {ok:false,msg:`mode must be "time" or "monitor". Got "${mode}".`};
+  if(!isNum(count)||parseFloat(count)<=0) return {ok:false,msg:`count must be positive. Got "${count}".`};
+  if(isVirtual(motor.toLowerCase())&&!prevDrive)
+    return {ok:false,msg:`Virtual motor "${motor}" needs a drive command first.`};
+  if(!isVirtual(motor.toLowerCase())&&prevDrive)
+    return {ok:'warn',msg:`Real motor "${motor}" preceded by drive — unusual.`};
+  if(parseFloat(start)===parseFloat(end)) return {ok:'warn',msg:`start = end = ${start} (zero range).`};
+  const step=(parseFloat(end)-parseFloat(start))/(parseInt(npts)-1);
+  return {ok:true,msg:`${motor}: ${start}→${end}, ${npts} pts, step≈${step.toFixed(4)}, ${mode}=${count}.`};
+}
+function validateMscan(t) {
+  if(t.length<7) return {ok:false,msg:'mscan needs at least: motor start step nsteps mode count.'};
+  const count=t[t.length-1],mode=t[t.length-2],nsteps=t[t.length-3];
+  if(!isCountMode(mode)) return {ok:false,msg:`mode must be "time" or "monitor". Got "${mode}".`};
+  if(!isNum(count)||parseFloat(count)<=0) return {ok:false,msg:`count must be positive. Got "${count}".`};
+  if(!isNum(nsteps)||!Number.isInteger(parseFloat(nsteps))||parseInt(nsteps)<2)
+    return {ok:false,msg:`nsteps must be integer ≥ 2. Got "${nsteps}".`};
+  const ma=t.slice(1,t.length-3);
+  if(!ma.length||ma.length%3!==0) return {ok:false,msg:`Motor args must be triplets (motor start step). Got ${ma.length}.`};
+  const motors=[];
+  for(let i=0;i<ma.length;i+=3){
+    const m=ma[i].toLowerCase(),s=ma[i+1],st=ma[i+2];
+    if(!isMotor(m)) return {ok:false,msg:`Unknown motor "${ma[i]}".`};
+    if(!isNum(s))  return {ok:false,msg:`start for "${m}" not a number: "${s}".`};
+    if(!isNum(st)) return {ok:false,msg:`step for "${m}" not a number: "${st}".`};
+    motors.push({name:m,start:s,step:st});
+  }
+  const active=motors.filter(m=>parseFloat(m.step)!==0);
+  if(!active.length) return {ok:'warn',msg:'All steps are 0 — no motor moves.'};
+  return {ok:true,msg:`mscan ${motors.map(m=>`${m.name}(${m.start},Δ${m.step})`).join(' ')} × ${nsteps} steps, ${mode}=${count}.`};
+}
+
+function validate() {
+  const lines=document.getElementById('input-area').value.split('\n');
+  const results=[],scanStats=[];
+  let nPass=0,nFail=0,nWarn=0,nSkip=0,prevDrive=false;
+
+  const meaningful=[];
+  lines.forEach((l,i)=>{const t=l.trim();if(t&&!t.startsWith('#'))meaningful.push({idx:i,text:t});});
+
+  lines.forEach((rawLine,li)=>{
+    const line=rawLine.trim(),lineNum=li+1;
+    if(!line){results.push({lineNum,raw:'',status:'skip',cmd:'',msg:''});nSkip++;prevDrive=false;return;}
+    if(line.startsWith('#')){results.push({lineNum,raw:line,status:'skip',cmd:'#',msg:line.slice(1).trim()});nSkip++;return;}
+    const t=tokenise(line),kw=t[0].toLowerCase();
+    const mi=meaningful.findIndex(m=>m.idx===li);
+    const nextTxt=meaningful[mi+1]?.text??null;
+    let res;
+    switch(kw){
+      case 'hset':case 'hget':case 'hdrive': res=validateHset(t);prevDrive=false;break;
+      case 'wait':  res=validateWait(t);prevDrive=false;break;
+      case 'title': res=validateTitle(t);break;
+      case 'drive': res=validateDrive(t,nextTxt);prevDrive=true;break;
+      case 'runscan':
+        res=validateRunscan(t,prevDrive);
+        if(res.ok===true) scanStats.push({lineNum,type:'runscan',motor:t[1],start:t[2],end:t[3],npts:t[4],mode:t[5],count:t[6]});
+        prevDrive=false;break;
+      case 'mscan':
+        res=validateMscan(t);
+        if(res.ok===true){const ma=t.slice(1,t.length-3);const ms=[];for(let i=0;i<ma.length;i+=3)ms.push(ma[i]);
+          scanStats.push({lineNum,type:'mscan',motor:ms.join('+'),start:'-',end:'-',npts:t[t.length-3],mode:t[t.length-2],count:t[t.length-1]});}
+        prevDrive=false;break;
+      default: res={ok:'warn',msg:`Unrecognised command "${t[0]}".`};prevDrive=false;
+    }
+    const status=res.ok===true?'pass':res.ok==='warn'?'warn':'fail';
+    if(status==='pass')nPass++;else if(status==='warn')nWarn++;else nFail++;
+    results.push({lineNum,raw:line,status,cmd:kw,msg:res.msg});
+  });
+  renderResults(results,nPass,nFail,nWarn,nSkip,scanStats);
+}
+
+function hl(raw) {
+  if(!raw) return '';
+  const t=tokenise(raw);
+  if(!t.length) return escHtml(raw);
+  const kws=new Set(['runscan','mscan','drive','hset','hget','hdrive','wait','title','time','monitor']);
+  return t.map((tok,i)=>{
+    const tl=tok.toLowerCase();
+    if(i===0||(kws.has(tl)&&i>0)) return `<span class="cmd-kw">${escHtml(tok)}</span>`;
+    if(ALL_MOTORS.has(tl))         return `<span class="cmd-motor">${escHtml(tok)}</span>`;
+    if(isNum(tok))                  return `<span class="cmd-num">${escHtml(tok)}</span>`;
+    return escHtml(tok);
+  }).join(' ');
+}
+
+function renderResults(results,nPass,nFail,nWarn,nSkip,scanStats){
+  const area=document.getElementById('results-area');
+  let html='';
+  if(nFail===0&&nWarn===0) html+=`<div class="section-divider" style="color:#56d364;border-color:#238636;">✔ All commands passed</div>`;
+  else if(nFail>0)         html+=`<div class="section-divider" style="color:#f85149;border-color:#da3633;">✘ ${nFail} error(s) found</div>`;
+  else                     html+=`<div class="section-divider" style="color:#e3b341;border-color:#9e6a03;">⚠ Passed with ${nWarn} warning(s)</div>`;
+  results.forEach(r=>{
+    if(r.status==='skip'&&!r.raw) return;
+    if(r.status==='skip'&&r.cmd==='#'){
+      html+=`<div class="result-block skip"><div class="result-row">
+        <span class="result-line-num">L${r.lineNum}</span><span class="badge skip">#</span>
+        <span class="result-content"><span class="result-cmd" style="color:var(--muted);font-style:italic;">${escHtml(r.msg)}</span></span>
+      </div></div>`;return;
+    }
+    const lbl=r.status==='pass'?'PASS':r.status==='warn'?'WARN':'FAIL';
+    html+=`<div class="result-block ${r.status}"><div class="result-row">
+      <span class="result-line-num">L${r.lineNum}</span><span class="badge ${r.status}">${lbl}</span>
+      <span class="result-content">
+        <div class="result-cmd">${hl(r.raw)}</div>
+        <div class="result-msg">${escHtml(r.msg)}</div>
+      </span></div></div>`;
+  });
+  if(scanStats.length>0){
+    html+=`<div class="section-divider" style="margin-top:12px;">Scan Summary (${scanStats.length})</div>`;
+    html+=`<table class="stats-table"><thead><tr><th>Line</th><th>Type</th><th>Motor</th><th>Start</th><th>End</th><th>Pts</th><th>Mode</th><th>Count</th></tr></thead><tbody>`;
+    scanStats.forEach(s=>{html+=`<tr><td>${s.lineNum}</td><td style="color:#79c0ff">${s.type}</td><td class="motor">${s.motor}</td><td class="num">${s.start}</td><td class="num">${s.end}</td><td class="num">${s.npts}</td><td>${s.mode}</td><td class="num">${s.count}</td></tr>`;});
+    html+=`</tbody></table>`;
+  }
+  area.innerHTML=html;
+  document.getElementById('s-total').textContent=results.length;
+  document.getElementById('s-pass').textContent=nPass;
+  document.getElementById('s-fail').textContent=nFail;
+  document.getElementById('s-warn').textContent=nWarn;
+  document.getElementById('summary-bar').style.display='flex';
+}
+
+function clearInput(){document.getElementById('input-area').value='';clearResults();}
+function clearResults(){
+  document.getElementById('results-area').innerHTML=`<div class="placeholder-msg"><span class="icon">⬡</span><span>Paste commands and click Validate</span></div>`;
+  document.getElementById('summary-bar').style.display='none';
+}
+document.getElementById('file-input').addEventListener('change',function(){
+  const file=this.files[0];if(!file)return;
+  const r=new FileReader();
+  r.onload=e=>{document.getElementById('input-area').value=e.target.result;clearResults();};
+  r.readAsText(file);this.value='';
+});
+function loadExample(){
+  document.getElementById('input-area').value=`### Example Taipan batch script
+
+# Temperature
+hset /sics/tc1/sensor/setpoint1 4
+hset /sics/tc1/sensor/setpoint2 4
+wait 600
+
+title PCMO (0.5,0,2.1) 120K
+drive qh 0.4 qk 0 ql 2.1 en 0
+runscan qh 0.4 0.6 41 time 10
+
+title PCMO (0.5,0,2.2) 120K
+drive qh 0.4 qk 0 ql 2.2 en 0
+runscan qh 0.4 0.6 41 monitor 100000
+
+runscan s2 -31.5 -35.5 21 time 2
+runscan s2 -37 -41 21 time 2
+
+title "const-E at (-0.5 0 1.5)"
+mscan qh -0.8 0.01 qk 0 0 ql 1.5 0 en 2 0 41 monitor 3000000`;
+  clearResults();
+}
+
+// ═══════════════════════════════════════════════
+//  GENERATOR
+// ═══════════════════════════════════════════════
+let generatedScans = [];
+
+function onVaryMotorChange() {
+  const vary = document.getElementById('g-vary-motor').value;
+  ['qh','qk','ql','en'].forEach(m => {
+    const el = document.getElementById('d-'+m);
+    if(el) el.classList.toggle('varying', m===vary);
+  });
+}
+onVaryMotorChange();
+
+// Build a numeric range avoiding float accumulation
+function floatRange(start, end, step) {
+  const pts=[];
+  const absStep=Math.abs(step);
+  const sign=step>0?1:-1;
+  const n=Math.round(Math.abs(end-start)/absStep);
+  for(let i=0;i<=n;i++){
+    const v=parseFloat((start+i*sign*absStep).toFixed(10));
+    pts.push(v);
+    // stop if we've passed end
+    if(sign>0 && v>=end-absStep*0.01) break;
+    if(sign<0 && v<=end+absStep*0.01) break;
+  }
+  // Ensure the last point is exactly the end value
+  if(pts.length===0 || Math.abs(pts[pts.length-1]-end)>absStep*0.01){
+    pts.push(parseFloat(end.toFixed(10)));
+  }
+  return pts;
+}
+
+function generateScans() {
+  const sample    = document.getElementById('g-sample').value.trim() || 'sample';
+  const scanMot   = document.getElementById('g-scan-motor').value;
+  const scanStart = parseFloat(document.getElementById('g-scan-start').value);
+  const scanEnd   = parseFloat(document.getElementById('g-scan-end').value);
+  const scanNpts  = parseInt(document.getElementById('g-scan-npts').value);
+  const mode      = document.getElementById('g-count-mode').value;
+  const count     = parseFloat(document.getElementById('g-count-val').value);
+  const varyMot   = document.getElementById('g-vary-motor').value;
+  const varyStart = parseFloat(document.getElementById('g-vary-start').value);
+  const varyEnd   = parseFloat(document.getElementById('g-vary-end').value);
+  const varyStep  = parseFloat(document.getElementById('g-vary-step').value);
+
+  const errs=[];
+  if(isNaN(scanStart)||isNaN(scanEnd)) errs.push('Scan start/end must be numbers.');
+  if(isNaN(scanNpts)||scanNpts<2)      errs.push('Points must be integer ≥ 2.');
+  if(isNaN(count)||count<=0)           errs.push('Count value must be positive.');
+  if(isNaN(varyStart)||isNaN(varyEnd)) errs.push('Varying motor start/end must be numbers.');
+  if(isNaN(varyStep)||varyStep===0)    errs.push('Varying motor step must be non-zero.');
+  if(scanMot===varyMot)                errs.push(`Scan motor and varying motor are both "${scanMot}" — they must differ.`);
+  if(errs.length){alert('Please fix:\n\n'+errs.join('\n'));return;}
+
+  // Base drive values from the form grid
+  const driveBase={};
+  ['qh','qk','ql','en'].forEach(m=>{
+    driveBase[m]=parseFloat(document.getElementById('d-'+m).value)||0;
+  });
+
+  const varyValues=floatRange(varyStart,varyEnd,varyStep);
+  generatedScans=[];
+
+  varyValues.forEach((vv,i)=>{
+    const drive=Object.assign({},driveBase);
+    drive[varyMot]=vv;
+
+    // Human-readable title
+    const titleText=`${sample} - ${scanMot} scan at ${varyMot} = ${fmt(vv)}`;
+
+    // Pre-compute scan step positions
+    const steps=[];
+    for(let k=0;k<scanNpts;k++){
+      steps.push(parseFloat((scanStart+k*(scanEnd-scanStart)/(scanNpts-1)).toFixed(10)));
+    }
+
+    generatedScans.push({idx:i, titleText, drive, scanMot, scanStart, scanEnd, scanNpts, mode, count, varyMot, varyVal:vv, steps});
+  });
+
+  renderGenerated();
+}
+
+// Highlighted command lines inside gen blocks
+function genCmdHtml(parts) {
+  // parts: [{t:'kw'|'mot'|'num'|'txt', v:string}]
+  return parts.map(p=>{
+    if(p.t==='kw')  return `<span class="kw">${escHtml(p.v)}</span>`;
+    if(p.t==='mot') return `<span class="mot">${escHtml(p.v)}</span>`;
+    if(p.t==='num') return `<span class="num">${escHtml(p.v)}</span>`;
+    return escHtml(p.v);
+  }).join(' ');
+}
+
+function renderGenerated() {
+  const area=document.getElementById('gen-preview-area');
+  if(!generatedScans.length){
+    area.innerHTML=`<div class="placeholder-msg"><span class="icon">⊞</span><span>Nothing generated yet</span></div>`;
+    return;
+  }
+
+  let html=`<div class="section-divider" style="color:var(--accent);">${generatedScans.length} scan group${generatedScans.length>1?'s':''} · click ▶ Steps to expand point list</div>`;
+
+  generatedScans.forEach(sc=>{
+    // Drive line parts
+    const driveParts=[{t:'kw',v:'drive'}];
+    Object.entries(sc.drive).forEach(([m,v])=>{driveParts.push({t:'mot',v:m});driveParts.push({t:'num',v:fmt(v)});});
+
+    // Runscan line
+    const runParts=[
+      {t:'kw',v:'runscan'},{t:'mot',v:sc.scanMot},
+      {t:'num',v:fmt(sc.scanStart)},{t:'num',v:fmt(sc.scanEnd)},
+      {t:'num',v:String(sc.scanNpts)},{t:'kw',v:sc.mode},{t:'num',v:String(sc.count)}
+    ];
+
+    // Step table rows — also show the scan motor drive value (which matches its position in drive)
+    const scanStep=(sc.scanEnd-sc.scanStart)/(sc.scanNpts-1);
+    const stepRows=sc.steps.map((s,k)=>
+      `<tr><td>${k+1}</td><td>${fmt(s)}</td></tr>`
+    ).join('');
+
+    html+=`
+    <div class="gen-block" id="gb-${sc.idx}">
+      <div class="gen-block-header">
+        <span class="gen-block-num">
+          SCAN ${sc.idx+1}/${generatedScans.length}
+          &nbsp;·&nbsp;<span style="color:var(--muted);font-weight:400;font-size:10px;">${escHtml(sc.varyMot)} = ${fmt(sc.varyVal)}</span>
+        </span>
+        <div class="gen-block-actions">
+          <button class="btn-expand" id="exp-btn-${sc.idx}" onclick="toggleSteps(${sc.idx})">▶ Steps (${sc.scanNpts})</button>
+          <button class="btn-add-pool" id="add-btn-${sc.idx}" onclick="addToPool(${sc.idx})">+ Pool</button>
+        </div>
+      </div>
+      <div class="gen-block-body">
+        <div class="gen-cmd-line"><span style="color:var(--muted)"># </span>${escHtml(sc.titleText)}</div>
+        <div class="gen-cmd-line">${genCmdHtml([{t:'kw',v:'title'},{t:'txt',v:sc.titleText}])}</div>
+        <div class="gen-cmd-line">${genCmdHtml(driveParts)}</div>
+        <div class="gen-cmd-line">${genCmdHtml(runParts)}</div>
+        <div class="step-table" id="steps-${sc.idx}">
+          <table>
+            <thead><tr>
+              <th>Pt</th>
+              <th>${escHtml(sc.scanMot)} position</th>
+            </tr></thead>
+            <tbody>${stepRows}</tbody>
+          </table>
+          <div style="font-size:10px;color:var(--muted);margin-top:4px;">
+            Step size: ${fmt(scanStep)} | ${sc.scanNpts} points from ${fmt(sc.scanStart)} to ${fmt(sc.scanEnd)}
+          </div>
+        </div>
+      </div>
+    </div>`;
+  });
+
+  area.innerHTML=html;
+}
+
+function toggleSteps(idx) {
+  const el=document.getElementById(`steps-${idx}`);
+  const btn=document.getElementById(`exp-btn-${idx}`);
+  const open=el.classList.toggle('open');
+  const sc=generatedScans[idx];
+  btn.textContent=open?`▼ Steps (${sc.scanNpts})`:`▶ Steps (${sc.scanNpts})`;
+}
+
+function scanToText(sc) {
+  const driveArgs=Object.entries(sc.drive).map(([m,v])=>`${m} ${fmt(v)}`).join('  ');
+  return [
+    `title ${sc.titleText}`,
+    `drive ${driveArgs}`,
+    `runscan ${sc.scanMot} ${fmt(sc.scanStart)} ${fmt(sc.scanEnd)} ${sc.scanNpts} ${sc.mode} ${sc.count}`
+  ].join('\n');
+}
+
+function addToPool(idx) {
+  const sc=generatedScans[idx];
+  const btn=document.getElementById(`add-btn-${idx}`);
+  const ta=document.getElementById('pool-textarea');
+  const existing=ta.value.trim();
+  ta.value=(existing?existing+'\n\n':'')+scanToText(sc);
+  btn.textContent='✔ Added';
+  btn.classList.add('added');
+  updatePoolCount();
+}
+
+function addAllToPool() {
+  if(!generatedScans.length){alert('Generate scans first.');return;}
+  const ta=document.getElementById('pool-textarea');
+  const blocks=generatedScans.map(sc=>scanToText(sc));
+  const existing=ta.value.trim();
+  ta.value=(existing?existing+'\n\n':'')+blocks.join('\n\n');
+  generatedScans.forEach(sc=>{
+    const btn=document.getElementById(`add-btn-${sc.idx}`);
+    if(btn){btn.textContent='✔ Added';btn.classList.add('added');}
+  });
+  updatePoolCount();
+}
+
+function clearGenerated() {
+  generatedScans=[];
+  document.getElementById('gen-preview-area').innerHTML=
+    `<div class="placeholder-msg"><span class="icon">⊞</span><span>Configure and click Generate</span></div>`;
+}
+
+function updatePoolCount() {
+  const ta=document.getElementById('pool-textarea');
+  const n=ta.value?ta.value.split('\n').filter(l=>l.trim()).length:0;
+  document.getElementById('pool-count').textContent=`${n} line${n!==1?'s':''}`;
+}
+function clearPool() {
+  document.getElementById('pool-textarea').value='';
+  updatePoolCount();
+  document.querySelectorAll('.btn-add-pool').forEach(b=>{b.textContent='+ Pool';b.classList.remove('added');});
+}
+function copyPool() {
+  const ta=document.getElementById('pool-textarea');
+  if(!ta.value.trim()){alert('Pool is empty.');return;}
+  navigator.clipboard.writeText(ta.value)
+    .then(()=>alert('Copied to clipboard.'))
+    .catch(()=>{ta.select();document.execCommand('copy');alert('Copied.');});
+}
+function sendPoolToValidator() {
+  const ta=document.getElementById('pool-textarea');
+  if(!ta.value.trim()){alert('Pool is empty.');return;}
+  document.getElementById('input-area').value=ta.value;
+  clearResults();
+  switchTab('validate');
+}
+function downloadPool() {
+  const ta=document.getElementById('pool-textarea');
+  if(!ta.value.trim()){alert('Pool is empty.');return;}
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([ta.value],{type:'text/plain'}));
+  a.download='taipan_batch.txt';a.click();
+}
+
+document.getElementById('pool-textarea').addEventListener('input',updatePoolCount);
+</script>
+</body>
+</html>
