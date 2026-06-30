@@ -774,6 +774,7 @@
                     <tr>
                         <th>File Number</th>
                         <th>Scan Description</th>
+                        <th>Scan Title</th>
                     </tr>
                 </thead>
                 <tbody id="summary-table-body">
@@ -1206,7 +1207,36 @@
             }
             
             const lastHeaderLine = headerLines[headerLines.length - 1].trim().substring(1).trim();
-            const columnNames = lastHeaderLine.split(/\s+/).map(name => name.trim());
+            const rawColumns = lastHeaderLine.split(/\s+/).map(name => name.trim()).filter(name => name.length > 0);
+
+            // Detect a concatenated magnet01 column-name block. The instrument's
+            // data acquisition occasionally glues several magnet parameter names
+            // together into one long token (no whitespace between them), e.g.
+            // "magnet01_He_Levmagnet01_T__Sensor00magnet01_field__Sensor00..."
+            // Loose detection: 'magnet01' appears more than once in the token
+            // and the token is unusually long.
+            const MAGNET01_REPLACEMENT = [
+                "mag_he_level",
+                "mag_temp_sensor",
+                "mag_field_sensor",
+                "mag_field_setpoint",
+                "mag_psupp_field"
+            ];
+            function isConcatenatedMagnet01(token) {
+                const matches = token.toLowerCase().match(/magnet01/g);
+                const count = matches ? matches.length : 0;
+                return count > 1 && token.length > 20;
+            }
+
+            const columnNames = [];
+            for (const col of rawColumns) {
+                if (isConcatenatedMagnet01(col)) {
+                    console.warn(`Bad concatenated header token detected: "${col.slice(0, 20)}..." -> replacing with ${JSON.stringify(MAGNET01_REPLACEMENT)}`);
+                    columnNames.push(...MAGNET01_REPLACEMENT);
+                } else {
+                    columnNames.push(col);
+                }
+            }
             
             const detectorColumnIndex = columnNames.findIndex(name => name.toLowerCase() === 'detector');
             if (detectorColumnIndex === -1) {
@@ -1292,7 +1322,7 @@
         }
         
         // Function to determine the scanning motor and create a summary
-        function createScanSummary(columnNames, data, fileIndex, fileName) {
+        function createScanSummary(columnNames, data, fileIndex, fileName, scanTitle) {
             // Check if any of these special motors are the scanning motor
             const specialMotors = ["qh", "qk", "ql", "en"];
             let scanningMotorIndex = -1;
@@ -1372,10 +1402,18 @@
                 enIndex = getColumnIndex(columnNames, "e");
             }
             
-            // Get temperature sensor indices
-            const t1s1Index = getColumnIndex(columnNames, "T1_Sensor1");
-            const t1s2Index = getColumnIndex(columnNames, "T1_Sensor2");
-            const t1s3Index = getColumnIndex(columnNames, "T1_Sensor3");
+            // Get temperature sensor indices. Depending on the instrument
+            // configuration, columns are named either T1_SensorN or T2_SensorN.
+            let t1s1Index = getColumnIndex(columnNames, "T1_Sensor1");
+            let t1s2Index = getColumnIndex(columnNames, "T1_Sensor2");
+            let t1s3Index = getColumnIndex(columnNames, "T1_Sensor3");
+            let t1s4Index = getColumnIndex(columnNames, "T1_Sensor4");
+            if (t1s1Index === -1 && t1s2Index === -1 && t1s3Index === -1) {
+                t1s1Index = getColumnIndex(columnNames, "T2_Sensor1");
+                t1s2Index = getColumnIndex(columnNames, "T2_Sensor2");
+                t1s3Index = getColumnIndex(columnNames, "T2_Sensor3");
+                t1s4Index = getColumnIndex(columnNames, "T2_Sensor4");
+            }
             
             // Get first row values
             const qhValue = getValue(data, 0, qhIndex);
@@ -1387,6 +1425,7 @@
             const t1s1Value = getValue(data, 0, t1s1Index);
             const t1s2Value = getValue(data, 0, t1s2Index);
             const t1s3Value = getValue(data, 0, t1s3Index);
+            const t1s4Value = getValue(data, 0, t1s4Index);
             
             // Create the summary description based on the scanning motor
             let scanDescription = "";
@@ -1412,6 +1451,7 @@
             return {
                 fileNumber: fileNumber,
                 scanDescription: scanDescription,
+                scanTitle: scanTitle || '',
                 scanningMotor: scanningMotorName,
                 scanningMotorIndex: scanningMotorIndex,
                 firstValue: firstValue,
@@ -1451,6 +1491,10 @@
                 const descriptionCell = document.createElement('td');
                 descriptionCell.textContent = summary.scanDescription;
                 row.appendChild(descriptionCell);
+                
+                const titleCell = document.createElement('td');
+                titleCell.textContent = summary.scanTitle || '';
+                row.appendChild(titleCell);
                 
                 summaryTableBody.appendChild(row);
             }
@@ -2029,7 +2073,7 @@
                             const { columnNames, data, detectorColumnIndex, scanTitle, midTime } = parseDataWithHeaders(content);
                             
                             // Create scan summary
-                            const summary = createScanSummary(columnNames, data, i, file.name);
+                            const summary = createScanSummary(columnNames, data, i, file.name, scanTitle);
                             summaries.push(summary);
                             
                             // Only plot if enabled
@@ -2874,7 +2918,7 @@
             renderImapPlot();
         }
 
-function renderImapPlot(zmin, zmax) {
+		function renderImapPlot(zmin, zmax) {
             if (!_imapData) return;
             const { allX, allY, allZ_det, allZ_mon, hasMonitor, xMotor, yMotor } = _imapData;
 
@@ -3315,7 +3359,7 @@ function renderImapPlot(zmin, zmax) {
         }
 
 
-// ═══════════════════════════════════════════════════════════════
+		// ═══════════════════════════════════════════════════════════════
         //  HE-3 POLARIZATION ANALYSIS
         // ═══════════════════════════════════════════════════════════════
 
