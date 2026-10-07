@@ -60,6 +60,53 @@
         button:hover {
             background-color: #45a049;
         }
+
+
+        .fab-container {
+            position: fixed;          /* stays put while scrolling */
+            right: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 900;             /* below your popup overlays; raise it if they sit lower */
+        }
+        .fab-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            color: #fff;
+            font-size: 20px;
+            line-height: 44px;
+            text-align: center;
+            box-shadow: 0 2px 6px rgba(0,0,0,.3);
+            transition: transform .15s;
+            position: relative;
+        }
+        .fab-btn:hover { transform: scale(1.12); }
+
+        /* custom tooltip on the left of the button */
+        .fab-btn::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            right: 54px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: #fff;
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .15s;
+        }
+        .fab-btn:hover::after { opacity: 1; }
         .tab-container {
             border: 1px solid #ddd;
             border-radius: 5px;
@@ -501,6 +548,11 @@
         }
         .imap-validation-msg.ok  { background: #e8f5e9; color: #2e7d32; border: 1px solid #a5d6a7; }
         .imap-validation-msg.err { background: #ffebee; color: #c62828; border: 1px solid #ef9a9a; }
+        /* hide the empty bordered box */
+        .imap-pair { display: flex; gap: 12px; flex-wrap: wrap; align-items: flex-start; }
+        .imap-slot { flex: 1 1 0; min-width: 320px; overflow-x: auto; }
+        .imap-plot-area:empty { display: none; }  
+        /* hide the empty bordered box */
         .popup-window-wide {
             background-color: white;
             border-radius: 8px;
@@ -759,7 +811,22 @@
             <h5 style="text-align: center;">Help: double click the margin area of the plots can open an fitting window.</h5>
         </div>
 
-
+            <div class="fab-container">
+                <button class="fab-btn" data-tooltip="Select Data Files" title="Select Data Files"
+                        style="background:#4CAF50;" onclick="processData()">📂</button>
+                <button class="fab-btn" data-tooltip="Ni Calibrate" title="Ni Calibrate"
+                        style="background:#1976D2;" onclick="openCalibrPopup()">🎯</button>
+                <button class="fab-btn" data-tooltip="Group Line Plot" title="Group Line Plot"
+                        style="background:#d21951;" onclick="openGroupLinePlot()">📈</button>
+                <button class="fab-btn" data-tooltip="Intensity Map" title="Intensity Map"
+                        style="background:#d29819;" onclick="openIntensityMap()">🗺️</button>
+                <button class="fab-btn" data-tooltip="Plot Sweep Scans" title="Plot Sweep Scans"
+                        style="background:#7f19d2;" onclick="openCombineSweepScans()">🌊</button>
+                <button class="fab-btn" data-tooltip="He-3 Polarization" title="He-3 Polarization"
+                        style="background:#19a2d2;" onclick="openHe3Popup()">🧲</button>
+                <button class="fab-btn" data-tooltip="Taipan validator" title="Taipan validator"
+                        style="background:#d219d2;" onclick="window.location.href='taipan_validator.html'">✅</button>
+            </div>
         
 
         <div id="file-info-section" style="display: none;" class="file-info">
@@ -804,6 +871,8 @@
                 </div>
 
                 <div class="fitting-controls">
+                    <label for="fit-x-select">X axis:</label>
+                    <select id="fit-x-select" onchange="changeFitXAxis()"></select>
                     <label for="gaussian-count">Number of Gaussians:</label>
                     <select id="gaussian-count" onchange="updateInitParamFields()">
                         <option value="1">1 Gaussian</option>
@@ -890,12 +959,16 @@
                     The program will validate the selection and build a 2D intensity contour map.
                 </p>
                 <div id="imap-file-list" class="imap-file-list"></div>
+
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:6px;">
-                    <button class="fit-button" onclick="validateAndPlotImap()" style="width:auto;padding:8px 18px;font-size:14px;">Validate &amp; Plot</button>
+                    <button class="fit-button" onclick="validateAndPlotImap('A')"
+                            style="width:auto;padding:8px 18px;font-size:14px;background:#d29819;">Plot selection as Map A</button>
+                    <button class="fit-button" onclick="validateAndPlotImap('B')"
+                            style="width:auto;padding:8px 18px;font-size:14px;background:#19a2d2;">Plot selection as Map B</button>
                     <button class="fit-button" onclick="imapSelectAll()" style="width:auto;padding:8px 18px;font-size:14px;background:#757575;">Select All</button>
                     <button class="fit-button" onclick="imapClearAll()" style="width:auto;padding:8px 18px;font-size:14px;background:#757575;">Clear All</button>
                 </div>
-                <div id="imap-validation-msg"></div>
+                
 
                 <!-- REPLACE WITH: -->
                 <div class="imap-controls" id="imap-controls" style="display:none;">
@@ -924,11 +997,10 @@
                     </label>
 
                     <!-- Save CSV button -->
-                    <button class="fit-button" onclick="imapSaveCsv()"
-                            style="width:auto;padding:6px 14px;font-size:13px;background:#388e3c;margin-left:10px;">
-                        Save CSV
-                    </button>
-
+                    <button class="fit-button" onclick="imapSaveCsv('A')"
+                            style="width:auto;padding:6px 14px;font-size:13px;background:#388e3c;margin-left:10px;">Save CSV (A)</button>
+                    <button class="fit-button" onclick="imapSaveCsv('B')"
+                            style="width:auto;padding:6px 14px;font-size:13px;background:#388e3c;">Save CSV (B)</button>
                     <!-- Row 2: Normalization -->
                     <div style="width:100%;display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px;">
                         <label style="font-weight:normal;display:flex;align-items:center;gap:5px;">
@@ -954,7 +1026,29 @@
                     </div>
                 </div>
 
-                <div id="imap-plot-area" class="imap-plot-area"></div>
+                <div class="imap-pair">
+                    <div class="imap-slot">
+                        <div id="imap-msg-A"></div>
+                        <div id="imap-plot-A" class="imap-plot-area"></div>
+                    </div>
+                    <div class="imap-slot">
+                        <div id="imap-msg-B"></div>
+                        <div id="imap-plot-B" class="imap-plot-area"></div>
+                    </div>
+                </div>
+
+                <div class="imap-controls" style="margin-top:14px;">
+                    <button class="fit-button" onclick="imapSubtract()"
+                            style="width:auto;padding:8px 18px;font-size:14px;background:#c62828;">Subtract (A − B)</button>
+                    <span>Difference scale:</span>
+                    <label>Min <input type="number" id="imap-dzmin" step="any" placeholder="auto"></label>
+                    <label>Max <input type="number" id="imap-dzmax" step="any" placeholder="auto"></label>
+                    <button class="fit-button" onclick="renderImapDiff()" style="width:auto;padding:6px 14px;font-size:13px;">Apply</button>
+                    <button class="fit-button" onclick="imapSaveCsv('D')"
+                            style="width:auto;padding:6px 14px;font-size:13px;background:#388e3c;">Save CSV (A−B)</button>
+                </div>
+                <div id="imap-msg-D"></div>
+                <div id="imap-plot-D" class="imap-plot-area"></div>
             </div>
         </div>
 
@@ -1150,6 +1244,7 @@
     <script>
         // Global variables for fitting
         let currentFitData = null;
+        let currentFitSource = null;   // { columnNames, data, yIndex }
         let currentPlotTitle = '';
         let currentXLabel = '';
         let currentYLabel = '';
@@ -1808,18 +1903,50 @@
         // Function to open fitting popup
                 
         // REPLACE WITH:
-        function openFittingPopup(xData, yData, title, xLabel, yLabel) {
-            currentFitData = { x: xData, y: yData };
+        function openFittingPopup(columnNames, data, xIndex, yIndex, title) {
+            currentFitSource = { columnNames, data, yIndex };
             currentPlotTitle = title;
-            currentXLabel = xLabel;
-            currentYLabel = yLabel;
+            currentYLabel = columnNames[yIndex];
+
+            // Fill the X-axis dropdown with every column
+            const sel = document.getElementById('fit-x-select');
+            sel.innerHTML = columnNames
+                .map((name, i) => `<option value="${i}">${name}</option>`)
+                .join('');
+            sel.value = xIndex;
+
+            applyFitXAxis(xIndex);
 
             document.getElementById('popup-title').textContent = `Gaussian Fitting - ${title}`;
             document.getElementById('fit-results').style.display = 'none';
             document.getElementById('fitting-popup').style.display = 'flex';
 
-            // Populate initial parameter fields and plot data
             updateInitParamFields();
+            plotOriginalData();
+        }
+
+        // Rebuild currentFitData / label for the chosen x column
+        function applyFitXAxis(xIndex) {
+            const { columnNames, data, yIndex } = currentFitSource;
+            const xs = [], ys = [];
+            data.forEach(row => {
+                const x = Number(row[xIndex]);
+                const y = Number(row[yIndex]);
+                if (Number.isFinite(x) && Number.isFinite(y)) {   // skip non-numeric columns/rows
+                    xs.push(x);
+                    ys.push(y);
+                }
+            });
+            currentFitData = { x: xs, y: ys };
+            currentXLabel = columnNames[xIndex];
+        }
+
+        // Called when the user picks a different column
+        function changeFitXAxis() {
+            const xIndex = parseInt(document.getElementById('fit-x-select').value);
+            applyFitXAxis(xIndex);
+            document.getElementById('fit-results').style.display = 'none';  // old fit no longer valid
+            updateInitParamFields();   // re-estimates initial parameters from the new x data
             plotOriginalData();
         }
         
@@ -2115,7 +2242,7 @@
                             
                             // REPLACE WITH:
                                 document.getElementById(plotId).addEventListener('dblclick', function() {
-                                openFittingPopup(xValues, yValues, truncatedName, columnNames[xColumnIndex], columnNames[detectorColumnIndex]);
+                                openFittingPopup(columnNames, data, xColumnIndex, detectorColumnIndex, truncatedName);
                             });
                             }
                             
@@ -2665,7 +2792,9 @@
         // ═══════════════════════════════════════════════════════════════
 
         // Stores the current imap dataset so we can re-apply scale without re-parsing
-        let _imapData = null;
+
+        let _imapSlots = { A: null, B: null };   // one parsed dataset per map
+        let _imapDiff  = null;                   // result of A − B
 
         function openIntensityMap() {
             if (!window.fileDataStore || window.fileDataStore.length === 0) {
@@ -2673,10 +2802,13 @@
                 return;
             }
             buildImapFileList();
-            document.getElementById('imap-validation-msg').innerHTML = '';
             document.getElementById('imap-controls').style.display = 'none';
-            document.getElementById('imap-plot-area').innerHTML = '';
-            _imapData = null;
+            _imapSlots = { A: null, B: null };
+            _imapDiff  = null;
+            ['A', 'B', 'D'].forEach(s => {
+                document.getElementById(`imap-msg-${s}`).innerHTML = '';
+                document.getElementById(`imap-plot-${s}`).innerHTML = '';
+            });
             document.getElementById('imap-popup').style.display = 'flex';
         }
 
@@ -2724,12 +2856,14 @@
             return vals.length ? vals.reduce((s, v) => s + v, 0) / vals.length : null;
         }
 
-        function validateAndPlotImap() {
-            const msgEl = document.getElementById('imap-validation-msg');
+
+        function validateAndPlotImap(slot) {            // slot = 'A' or 'B'
+            const msgEl = document.getElementById(`imap-msg-${slot}`);
             msgEl.innerHTML = '';
-            document.getElementById('imap-controls').style.display = 'none';
-            document.getElementById('imap-plot-area').innerHTML = '';
-            _imapData = null;
+            document.getElementById(`imap-plot-${slot}`).innerHTML = '';
+            _imapSlots[slot] = null;
+            clearImapDiff();                            // an old A−B is stale once A or B changes
+            // ...the existing "const selected = ..." line follows unchanged
 
             const selected = (window.fileNames || [])
                 .map((_, i) => i)
@@ -2894,105 +3028,224 @@
             _imapData = { allX, allY, allZ_det, allZ_mon, hasMonitor,
                           xMotor, yMotor, scanMotor, varyingMotor, firstMonitor };
 
-            // Enable/disable the normalise checkbox depending on monitor availability
-            const normCb = document.getElementById('imap-normalize');
-            normCb.disabled = !hasMonitor;
-            normCb.checked  = false;
-            normCb.parentElement.style.color = hasMonitor ? '' : '#aaa';
-            normCb.parentElement.title = hasMonitor ? '' : 'No monitor column found in selected files';
+            _imapSlots[slot] = { allX, allY, allZ_det, allZ_mon, hasMonitor,
+                                xMotor, yMotor, scanMotor, varyingMotor, firstMonitor };
 
-            // Build validation summary
+            // Normalise checkbox: enabled if either map has a monitor column
+            const anyMonitor = ['A', 'B'].some(s => _imapSlots[s] && _imapSlots[s].hasMonitor);
+            const normCb = document.getElementById('imap-normalize');
+            normCb.disabled = !anyMonitor;
+            if (!anyMonitor) normCb.checked = false;   // keep the user's choice when B is loaded after A
+            normCb.parentElement.style.color = anyMonitor ? '' : '#aaa';
+            normCb.parentElement.title = anyMonitor ? '' : 'No monitor column found in selected files';
+
             const warnHTML = warnings.length
                 ? `<br><strong>Warnings:</strong> ${warnings.join('; ')}`
                 : '';
             msgEl.innerHTML = `<div class="imap-validation-msg ok">
-                ✔ Valid: <strong>${selected.length}</strong> scans of <em>${scanMotor}</em>
+                ✔ Map ${slot}: <strong>${selected.length}</strong> scans of <em>${scanMotor}</em>
                 at different <em>${varyingMotor}</em> positions.
-                X axis: <strong>${xMotor}</strong>, Y axis: <strong>${yMotor}</strong>.
-                ${hasMonitor ? 'Monitor column found — normalisation available.' : 'No monitor column.'}${warnHTML}
+                X: <strong>${xMotor}</strong>, Y: <strong>${yMotor}</strong>.
+                ${hasMonitor ? 'Monitor found.' : 'No monitor column.'}${warnHTML}
             </div>`;
 
-            document.getElementById('imap-zmin').value = '';
-            document.getElementById('imap-zmax').value = '';
+            // Reset the shared z-range only when this is the first map
+            const other = slot === 'A' ? 'B' : 'A';
+            if (!_imapSlots[other]) {
+                document.getElementById('imap-zmin').value = '';
+                document.getElementById('imap-zmax').value = '';
+            }
             document.getElementById('imap-controls').style.display = 'flex';
-            renderImapPlot();
+            applyImapScale();                           // renders every map that exists
+        }
+        // Z values (raw or monitor-normalised) for one map, using the shared controls
+        function imapGetZ(d) {
+            const normalize = d.hasMonitor && document.getElementById('imap-normalize').checked;
+            const f = parseFloat(document.getElementById('imap-norm-factor').value);
+            const k = (isNaN(f) || f === 0) ? 1 : f;
+            const z = d.allZ_det.map((det, i) => {
+                if (!normalize) return det;
+                const mon = d.allZ_mon[i];
+                return (mon !== null && mon > 0) ? det / mon * k : null;
+            });
+            return { z, normalize, k };
         }
 
-		function renderImapPlot(zmin, zmax) {
-            if (!_imapData) return;
-            const { allX, allY, allZ_det, allZ_mon, hasMonitor, xMotor, yMotor } = _imapData;
-
-            const colorscale   = document.getElementById('imap-colorscale').value;
-            const normalize    = hasMonitor && document.getElementById('imap-normalize').checked;
+        function renderImapPlot(slot, zmin, zmax) {
+            const d = _imapSlots[slot];
+            if (!d) return;
+            const { z, normalize, k } = imapGetZ(d);
             const showContours = document.getElementById('imap-show-contours').checked;
-            const factor       = parseFloat(document.getElementById('imap-norm-factor').value);
-            const normFactor   = (isNaN(factor) || factor === 0) ? 1 : factor;
-
-            // Build Z: raw detector, or (det / mon) × factor
-            const allZ = allZ_det.map((det, i) => {
-                if (!normalize) return det;
-                const mon = allZ_mon[i];
-                return (mon !== null && mon > 0) ? det / mon * normFactor : null;
-            });
-
-            const cbTitle = normalize ? `Det/Mon×${normFactor}` : 'Detector';
 
             const trace = {
-                x: allX,
-                y: allY,
-                z: allZ,
+                x: d.allX, y: d.allY, z: z,
                 type: 'contour',
-                colorscale: colorscale,
-                contours: {
-                    coloring: 'heatmap',
-                    showlines: showContours
-                },
-                colorbar: { title: cbTitle, thickness: 16 },
-                line: { smoothing: 0.85, width: showContours ? 0.5 : 0 } //line: { smoothing: 0.85 }
+                colorscale: document.getElementById('imap-colorscale').value,
+                contours: { coloring: 'heatmap', showlines: showContours },
+                colorbar: { title: normalize ? `Det/Mon×${k}` : 'Detector', thickness: 16 },
+                line: { smoothing: 0.85, width: showContours ? 0.5 : 0 }
             };
+            if (zmin !== undefined && !isNaN(zmin)) trace.zmin = zmin;
+            if (zmax !== undefined && !isNaN(zmax)) trace.zmax = zmax;
 
-            if (zmin !== undefined && zmin !== null && !isNaN(zmin)) trace.zmin = zmin;
-            if (zmax !== undefined && zmax !== null && !isNaN(zmax)) trace.zmax = zmax;
-
-            // Use slider value for width; height is derived to keep a reasonable aspect ratio
-            const plotWidth  = parseInt(document.getElementById('imap-width-slider').value, 10) || 700;
-            const plotHeight = Math.round(plotWidth * 0.65);
-
-            const layout = {
-                width:  plotWidth,
-                height: plotHeight,
-                xaxis: { title: xMotor, showgrid: true, gridcolor: '#e6e6e6' },
-                yaxis: { title: yMotor, showgrid: true, gridcolor: '#e6e6e6' },
-                margin: { l: 60, r: 100, t: 30, b: 55 },
-                plot_bgcolor: '#ffffff',
-                paper_bgcolor: '#ffffff'
-            };
-
-            Plotly.newPlot('imap-plot-area', [trace], layout);
+            const w = parseInt(document.getElementById('imap-width-slider').value, 10) || 540;
+            Plotly.newPlot(`imap-plot-${slot}`, [trace], {
+                title: { text: `Map ${slot}`, font: { size: 14 } },
+                width: w, height: Math.round(w * 0.65),
+                xaxis: { title: d.xMotor, showgrid: true, gridcolor: '#e6e6e6' },
+                yaxis: { title: d.yMotor, showgrid: true, gridcolor: '#e6e6e6' },
+                margin: { l: 60, r: 100, t: 40, b: 55 },
+                plot_bgcolor: '#ffffff', paper_bgcolor: '#ffffff'
+            });
         }
 
+        // Re-render A and B with the shared scale; refresh A−B too if it exists
         function applyImapScale() {
-            const zminVal = parseFloat(document.getElementById('imap-zmin').value);
-            const zmaxVal = parseFloat(document.getElementById('imap-zmax').value);
-            renderImapPlot(
-                isNaN(zminVal) ? undefined : zminVal,
-                isNaN(zmaxVal) ? undefined : zmaxVal
-            );
+            const zmin = parseFloat(document.getElementById('imap-zmin').value);
+            const zmax = parseFloat(document.getElementById('imap-zmax').value);
+            ['A', 'B'].forEach(s => renderImapPlot(s,
+                isNaN(zmin) ? undefined : zmin,
+                isNaN(zmax) ? undefined : zmax));
+            if (_imapDiff) imapSubtract();     // normalisation/factor may have changed
         }
 
-        // Called when Normalize checkbox is toggled — set factor default to first-scan monitor
         function imapOnNormalizeChange() {
             const cb = document.getElementById('imap-normalize');
             const factorInput = document.getElementById('imap-norm-factor');
             const hint = document.getElementById('imap-norm-hint');
-            if (cb.checked && _imapData && _imapData.firstMonitor !== null) {
-                factorInput.value = _imapData.firstMonitor.toFixed(0);
-                hint.textContent  = `(default = first-scan monitor: ${_imapData.firstMonitor.toFixed(0)})`;
+            const ref = _imapSlots.A || _imapSlots.B;          // default factor from the first available map
+            if (cb.checked && ref && ref.firstMonitor !== null) {
+                factorInput.value = ref.firstMonitor.toFixed(0);
+                hint.textContent  = `(default = first-scan monitor: ${ref.firstMonitor.toFixed(0)})`;
             } else if (!cb.checked) {
                 hint.textContent = '';
             }
             applyImapScale();
         }
+
+        function clearImapDiff() {
+            _imapDiff = null;
+            document.getElementById('imap-msg-D').innerHTML = '';
+            document.getElementById('imap-plot-D').innerHTML = '';
+        }
+
+        // Returns f(x, y) giving the interpolated z of map d, or null outside its range.
+        // Maps are made of scan lines (one scan = one line of constant 'varying' motor).
+        function imapMakeInterpolator(d, z) {
+            const eps = 1e-3;                                   // same tolerance as the validation step
+            const lineIsY = (d.xMotor === d.scanMotor);         // lines of constant y if x is the scanned motor
+
+            const groups = new Map();                           // line coordinate -> [[t, z], ...]
+            d.allX.forEach((x, i) => {
+                if (z[i] === null || !isFinite(z[i])) return;
+                const c = lineIsY ? d.allY[i] : x;
+                const t = lineIsY ? x : d.allY[i];
+                if (!groups.has(c)) groups.set(c, []);
+                groups.get(c).push([t, z[i]]);
+            });
+            const lines = [...groups.entries()]
+                .sort((a, b) => a[0] - b[0])
+                .map(([c, pts]) => ({ c, pts: pts.sort((a, b) => a[0] - b[0]) }));
+
+            // Linear interpolation along one scan line; null outside its range
+            const alongLine = (pts, t) => {
+                if (pts.length === 1) return Math.abs(t - pts[0][0]) < eps ? pts[0][1] : null;
+                if (t < pts[0][0] || t > pts[pts.length - 1][0]) return null;
+                for (let j = 1; j < pts.length; j++) {
+                    if (t <= pts[j][0]) {
+                        const [t0, z0] = pts[j - 1], [t1, z1] = pts[j];
+                        return t1 === t0 ? z1 : z0 + (z1 - z0) * (t - t0) / (t1 - t0);
+                    }
+                }
+                return null;
+            };
+
+            return (x, y) => {
+                const c = lineIsY ? y : x;
+                const t = lineIsY ? x : y;
+                if (!lines.length || c < lines[0].c - eps || c > lines[lines.length - 1].c + eps) return null;
+                for (let j = 0; j < lines.length; j++) {
+                    if (Math.abs(lines[j].c - c) < eps) return alongLine(lines[j].pts, t);   // on a scan line
+                    if (lines[j].c > c) {                                                    // between two lines
+                        if (j === 0) return null;
+                        const a = alongLine(lines[j - 1].pts, t);
+                        const b = alongLine(lines[j].pts, t);
+                        if (a === null || b === null) return null;
+                        return a + (b - a) * (c - lines[j - 1].c) / (lines[j].c - lines[j - 1].c);
+                    }
+                }
+                return null;
+            };
+        }
+
+        function imapSubtract() {
+            const msgEl = document.getElementById('imap-msg-D');
+            const fail = text => {
+                _imapDiff = null;
+                document.getElementById('imap-plot-D').innerHTML = '';
+                msgEl.innerHTML = `<div class="imap-validation-msg err">${text}</div>`;
+            };
+
+            const A = _imapSlots.A, B = _imapSlots.B;
+            if (!A || !B) return fail('Plot both Map A and Map B first.');
+            if (A.xMotor !== B.xMotor || A.yMotor !== B.yMotor) {
+                return fail(`Axes differ: A is ${A.xMotor} × ${A.yMotor}, B is ${B.xMotor} × ${B.yMotor}.`);
+            }
+            if (document.getElementById('imap-normalize').checked && !(A.hasMonitor && B.hasMonitor)) {
+                return fail('Normalisation is on, but one of the maps has no monitor column.');
+            }
+
+            const za = imapGetZ(A), zb = imapGetZ(B);
+            const interpB = imapMakeInterpolator(B, zb.z);
+
+            const x = [], y = [], z = [];
+            A.allX.forEach((xv, i) => {
+                if (za.z[i] === null) return;
+                const bv = interpB(xv, A.allY[i]);
+                if (bv === null) return;                       // outside B's coverage
+                x.push(xv); y.push(A.allY[i]); z.push(za.z[i] - bv);
+            });
+            if (!z.length) return fail('The two maps do not overlap, so A − B cannot be computed.');
+
+            _imapDiff = { x, y, z, xMotor: A.xMotor, yMotor: A.yMotor, normalize: za.normalize, k: za.k };
+            msgEl.innerHTML = `<div class="imap-validation-msg ok">
+                ✔ A − B on <strong>${z.length}</strong> of ${A.allX.length} points of A
+                (B interpolated onto A's points; non-overlapping points omitted).
+            </div>`;
+            renderImapDiff();
+        }
+
+        function renderImapDiff() {
+            const d = _imapDiff;
+            if (!d) return;
+            const zmin = parseFloat(document.getElementById('imap-dzmin').value);
+            const zmax = parseFloat(document.getElementById('imap-dzmax').value);
+            const showContours = document.getElementById('imap-show-contours').checked;
+
+            const trace = {
+                x: d.x, y: d.y, z: d.z,
+                type: 'contour',
+                colorscale: 'RdBu', reversescale: true,         // positive = red, negative = blue
+                zmid: 0,                                         // keeps white at zero when range is auto
+                contours: { coloring: 'heatmap', showlines: showContours },
+                colorbar: { title: `A − B (${d.normalize ? `Det/Mon×${d.k}` : 'Detector'})`, thickness: 16 },
+                line: { smoothing: 0.85, width: showContours ? 0.5 : 0 }
+            };
+            if (!isNaN(zmin)) trace.zmin = zmin;
+            if (!isNaN(zmax)) trace.zmax = zmax;
+
+            const w = parseInt(document.getElementById('imap-width-slider').value, 10) || 540;
+            Plotly.newPlot('imap-plot-D', [trace], {
+                title: { text: 'Difference: A − B', font: { size: 14 } },
+                width: w, height: Math.round(w * 0.65),
+                xaxis: { title: d.xMotor, showgrid: true, gridcolor: '#e6e6e6' },
+                yaxis: { title: d.yMotor, showgrid: true, gridcolor: '#e6e6e6' },
+                margin: { l: 60, r: 100, t: 40, b: 55 },
+                plot_bgcolor: '#ffffff', paper_bgcolor: '#ffffff'
+            });
+        }
+
+
 
         // Resize handler from the slider
         function imapResizePlot(val) {
@@ -3001,31 +3254,28 @@
         }
 
         // Save the current map data as CSV
-        function imapSaveCsv() {
-            if (!_imapData) return;
-            const { allX, allY, allZ_det, allZ_mon, hasMonitor, xMotor, yMotor } = _imapData;
+        function imapSaveCsv(slot) {
+            let header, rows, filename;
 
-            const normalize = hasMonitor && document.getElementById('imap-normalize').checked;
-            const factor    = parseFloat(document.getElementById('imap-norm-factor').value);
-            const normFactor = (isNaN(factor) || factor === 0) ? 1 : factor;
-
-            let header, rows;
-            if (normalize) {
-                header = `${xMotor},${yMotor},intensity_normalized`;
-                rows = allX.map((x, i) => {
-                    const mon = allZ_mon[i];
-                    const z = (mon !== null && mon > 0) ? allZ_det[i] / mon * normFactor : '';
-                    return `${x},${allY[i]},${z}`;
-                });
+            if (slot === 'D') {
+                if (!_imapDiff) return;
+                const d = _imapDiff;
+                header = `${d.xMotor},${d.yMotor},difference_A_minus_B`;
+                rows = d.x.map((x, i) => `${x},${d.y[i]},${d.z[i]}`);
+                filename = d.normalize ? 'intensity_map_A-B_normalized.csv' : 'intensity_map_A-B_raw.csv';
             } else {
-                header = `${xMotor},${yMotor},detector`;
-                rows = allX.map((x, i) => `${x},${allY[i]},${allZ_det[i]}`);
+                const d = _imapSlots[slot];
+                if (!d) return;
+                const { z, normalize } = imapGetZ(d);
+                header = `${d.xMotor},${d.yMotor},${normalize ? 'intensity_normalized' : 'detector'}`;
+                rows = d.allX.map((x, i) => `${x},${d.allY[i]},${z[i] === null ? '' : z[i]}`);
+                filename = `intensity_map_${slot}_${normalize ? 'normalized' : 'raw'}.csv`;
             }
 
-            const csv = header + '\n' + rows.join('\n');
+            const url = URL.createObjectURL(new Blob([header + '\n' + rows.join('\n')], { type: 'text/csv' }));
             const a = document.createElement('a');
-            a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
-            a.download = normalize ? 'intensity_map_normalized.csv' : 'intensity_map_raw.csv';
+            a.href = url;
+            a.download = filename;
             a.click();
             setTimeout(() => URL.revokeObjectURL(url), 10000);
         }
